@@ -1,0 +1,7 @@
+---
+- name: Database Playbook
+  hosts: database
+  tasks:
+    - name: Include ansible-mariadb-galera-cluster
+      include_role:
+        name: ansible-mariadb-galera-cluster

@@ -1,0 +1,13 @@
+---
+- name: Playbook for loadbalancer Hosts
+  hosts: loadbalancer
+  collections:
+    - middleware_automation.redhat_csp_download
+  roles:
+    - redhat_csp_download
+  tasks:
+    - set_fact:
+        override_jbcs_bind_address: "{{ ansible_nodename }}"
+    - name: "JBoss Core Services"
+      include_role:
+        name: jbcs
