@@ -1,0 +1,8 @@
+---
+- name: "Restart JBCS"
+  service:
+    name: jbcs-httpd24-httpd.service
+    state: restarted
+
+- name: "expire mod_cluster cache and restart"
+  include_tasks: tasks/mod_cluster_cache_and_restart.yml

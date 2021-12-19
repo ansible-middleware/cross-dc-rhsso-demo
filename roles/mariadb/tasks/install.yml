@@ -1,0 +1,44 @@
+---
+- name: redhat | precreate /etc/my.cnf.d in case we need to add mariadb_config_overrides file
+  file:
+    path: "/etc/my.cnf.d"
+    state: "directory"
+    mode: 0755
+  changed_when: false
+  when: mariadb_config_overrides is defined
+
+- name: redhat | add an overrides file
+  template:
+    src: "etc/mariadb_overrides.cnf.j2"
+    dest: "/etc/my.cnf.d/overrides.cnf"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  when: mariadb_config_overrides is defined
+
+- name: redhat | installing mariadb mysql
+  yum:
+    name:
+      - python3-PyMySQL
+      - mariadb-server
+      - galera
+      - mariadb-server-galera
+      - procps-ng
+    state: "present"
+
+- name: redhat | uninstall mariadb gssapi plugin
+  yum:
+    name:
+      - mariadb-gssapi-server
+    state: "absent"
+
+- name: redhat | ensuring mariadb mysql is enabled on boot
+  service:
+    name: "mariadb"
+    enabled: true
+
+- name: redhat | start only the first node to add users
+  service:
+    name: "mariadb"
+    state: started
+  when: inventory_hostname == galera_mysql_first_node

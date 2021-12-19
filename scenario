@@ -18,16 +18,17 @@ database
 [site1]
 site1-datagrid1
 site1-datagrid2
-site1-sso1
-site1-sso2
-site1-database
+site1-rhsso1
+site1-rhsso2
+site1-database1
+site1-database2
 
 [site2]
 site2-datagrid1
 site2-datagrid2
-site2-sso1
-site2-sso2
-site2-database
+site2-rhsso1
+site2-rhsso2
+site2-database1
 
 [datagrid]
 site1-datagrid1
@@ -42,8 +43,9 @@ site2-rhsso1
 site2-rhsso2
 
 [database]
-site1-database
-site2-database
+site1-database1
+site1-database2
+site2-database1
 
 [loadbalancer]
-loadbalacer0
+loadbalancer0

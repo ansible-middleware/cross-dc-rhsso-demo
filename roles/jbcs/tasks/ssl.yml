@@ -1,0 +1,64 @@
+---
+- assert:
+    that:
+      - httpd is defined
+      - httpd.home is defined
+    quiet: true
+
+- set_fact:
+    ssl_conf: "{{ httpd.home }}/httpd/conf.d/ssl.conf"
+
+- set_fact:
+    ssl_conf_disabled: "{{ ssl_conf }}.disabled"
+
+- stat:
+    path: "{{ ssl_conf }}"
+  register: ssl_conf_file
+
+- block:
+    - stat:
+        path: "{{ ssl_conf_disabled }}"
+      register: ssl_conf_disabled_file
+
+    - name: "Disabled SSL"
+      file:
+        src: "{{ ssl_conf }}"
+        path: "{{ ssl_conf }}.disabled"
+        state: hard
+      when:
+        - ssl_conf_file.stat.exists
+        - not ssl_conf_disabled_file.stat.exists
+
+    - stat:
+        path: "{{ ssl_conf }}.disabled"
+      register: ssl_conf_remove
+
+    - name: "Remove old file"
+      file:
+        path: "{{ ssl_conf }}"
+        state: absent
+      when:
+        - ssl_conf_remove.stat.exists
+  when:
+    - not httpd_ssl is defined
+
+- block:
+    - name: "Ensures HTTPd SSL configuration is deployed"
+      template:
+        src: templates/ssl.conf.j2
+        dest: "{{ ssl_conf }}"
+      notify:
+        - Restart JBCS
+
+    - stat:
+        path: "{{ ssl_conf_disabled }}"
+      register: is_ssl_conf_disabled
+
+    - name: "Remove disabled conf if exists"
+      file:
+        path: "{{ ssl_conf_disabled }}"
+        state: absent
+      when:
+        - is_ssl_conf_disabled.stat.exists
+  when:
+    - httpd_ssl is defined

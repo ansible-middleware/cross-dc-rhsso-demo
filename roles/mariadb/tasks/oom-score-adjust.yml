@@ -1,0 +1,21 @@
+---
+# Supplementary configuration file
+- name: oom_score_adjust | create folder
+  file:
+    path: "/etc/systemd/system/mariadb.service.d"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "u=rwx,g=rx,o=rx"
+  notify: "reload systemd daemon"
+  become: true
+
+- name: oom_score_adjust | add the overriding file
+  template:
+    src: "etc/systemd/system/mariadb.service.d/oom-score-adjust.conf.j2"
+    dest: "/etc/systemd/system/mariadb.service.d/oom-score-adjust.conf"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=r,o=r"
+  notify: "reload systemd daemon"
+  become: true

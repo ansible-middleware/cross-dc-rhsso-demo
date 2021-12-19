@@ -1,0 +1,47 @@
+---
+- name: configure_root_access | configuring root my.cnf
+  template:
+    src: "root/my.cnf.j2"
+    dest: "/root/.my.cnf"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=,o="
+  become: true
+  no_log: "{{ rh_no_log }}"
+
+- name: configure_root_access | updating root passwords
+  mysql_user:
+    host: "{{ item }}"
+    login_unix_socket: "{{ mariadb_login_unix_socket }}"
+    name: "root"
+    password: "{{ mariadb_mysql_root_password }}"
+  become: true
+  no_log: "{{ rh_no_log }}"
+  run_once: true
+  retries: 6
+  delay: 5
+  with_items:
+    - "{{ ansible_hostname }}"
+    - "127.0.0.1"
+    - "::1"
+    - "localhost"
+  tags:
+    - updating_root_passwords
+
+- name: configure_root_access | updating root passwords (allow from anywhere)
+  mysql_user:
+    host: "{{ item }}"
+    login_unix_socket: "{{ mariadb_login_unix_socket }}"
+    name: "root"
+    password: "{{ mariadb_mysql_root_password }}"
+    priv: "*.*:ALL,GRANT"
+  become: true
+  no_log: "{{ rh_no_log }}"
+  run_once: true
+  retries: 6
+  delay: 5
+  with_items:
+    - "%"
+  when: galera_allow_root_from_any|bool
+  tags:
+    - updating_root_passwords

@@ -1,0 +1,17 @@
+---
+- name: 'expire mod_cluster cache and restart'
+  become: true
+  block:
+    - assert:
+        that:
+          - httpd is defined
+          - httpd.home is defined
+    - service:
+        name: jbcs-httpd24-httpd.service
+        state: stopped
+
+    - command: rm -rf {{ httpd.home }}/httpd/cache/mod_cluster/
+    
+    - service:
+        name: jbcs-httpd24-httpd.service
+        state: started

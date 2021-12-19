@@ -1,0 +1,243 @@
+---
+# Mark cluster node unconfigured when setting need cluster shutdown
+- name: setup_cluster | mark galera cluster node unconfigured
+  file:
+    path: "/etc/galera_cluster_configured"
+    state: "absent"
+  become: true
+  when: galera_reconfigure_galera
+
+- name: setup_cluster | checking if galera cluster already configured
+  stat:
+    path: "/etc/galera_cluster_configured"
+  register: "galera_cluster_configured"
+
+# Configure common settings for mariadb and galera
+- name: setup_cluster | create TLS certificates directory
+  file:
+    path: "{{ mariadb_certificates_dir }}"
+    state: "directory"
+    owner: "mysql"
+    group: "mysql"
+    mode: "0500"
+  become: true
+  when:
+    - mariadb_tls_files is defined
+    - mariadb_tls_files | length == 3
+
+- name: setup_cluster | copy TLS CA cert, server cert & private key
+  copy:
+    content: "{{ item.value.content }}"
+    dest: "{{ mariadb_certificates_dir }}/{{ item.value.name }}"
+    owner: "mysql"
+    group: "mysql"
+    mode: "0400"
+    backup: true
+  with_dict: "{{ mariadb_tls_files }}"
+  become: true
+  no_log: true
+  when:
+    - mariadb_tls_files is defined
+    - mariadb_tls_files | length == 3
+
+- name: setup_cluster | configuring settings for mariadb and galera
+  template:
+    src: "{{ item }}.j2"
+    dest: "/{{ item }}"
+    mode: "0644"
+  become: true
+  register: "_mariadb_galera_cluster_reconfigured"
+  loop: "{{ mariadb_confs }}"
+
+- name: setup_cluster | restarting node to apply config changes (first node)
+  service: # noqa 503
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "restarted"
+  become: true
+  when: >
+    galera_cluster_configured.stat.exists and
+    _mariadb_galera_cluster_reconfigured.changed and
+    inventory_hostname == galera_mysql_first_node
+
+- name: setup_cluster | ensure first node is fully started before restarting other nodes
+  service: # noqa 503
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "started"
+  become: true
+  register: "_mariadb_galera_cluster_node"
+  until: _mariadb_galera_cluster_node.status.ActiveState == "active"
+  retries: 60
+  delay: 5
+  delegate_to: "{{ galera_mysql_first_node }}"
+  run_once: true
+  when: >
+    galera_cluster_configured.stat.exists and
+    _mariadb_galera_cluster_reconfigured.changed and
+    inventory_hostname != galera_mysql_first_node
+
+- name: setup_cluster | restarting node to apply config changes (other nodes)
+  service: # noqa 503
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "restarted"
+  become: true
+  throttle: 1
+  when: >
+    galera_cluster_configured.stat.exists and
+    _mariadb_galera_cluster_reconfigured.changed and
+    inventory_hostname != galera_mysql_first_node
+
+# (Re)configure cluster settings
+- name: setup_cluster | stopping mysql to (re)configure cluster (other nodes)
+  service:
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "stopped"
+  become: true
+  throttle: 1
+  register: "_mariadb_galera_cluster_node"
+  until: _mariadb_galera_cluster_node.status.ActiveState == "inactive"
+  retries: 60
+  delay: 5
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname != galera_mysql_first_node
+
+- name: setup_cluster | stopping mysql to (re)configure cluster (first node)
+  service:
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "stopped"
+  become: true
+  register: "_mariadb_galera_cluster_node"
+  until: _mariadb_galera_cluster_node.status.ActiveState == "inactive"
+  retries: 60
+  delay: 5
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname == galera_mysql_first_node
+
+- name: setup_cluster | sleep for 15 seconds to wait for nodes to fully shut down
+  wait_for:
+    timeout: 15
+  delegate_to: localhost
+  become: false
+  when: >
+    not galera_cluster_configured.stat.exists
+
+- name: setup_cluster | killing lingering mysql processes to ensure mysql is stopped # noqa ignore-errors
+  command: "pkill {{ mariadb_systemd_service_name }}"
+  become: true
+  ignore_errors: true
+  when: not galera_cluster_configured.stat.exists
+
+- name: setup_cluster | configuring temp galera config for first node
+  template:
+    src: "{{ item }}.temp.j2"
+    dest: "/{{ item }}"
+    mode: "0644"
+  become: true
+  loop: "{{ mariadb_temp_confs }}"
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname == galera_mysql_first_node
+
+- name: setup_cluster | bootstrapping galera cluster
+  command: "/usr/bin/galera_new_cluster"
+  become: true
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname == galera_mysql_first_node
+
+- name: setup_cluster | ensure first node is fully started before joining other nodes
+  service:
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "started"
+  become: true
+  register: "_mariadb_galera_cluster_node"
+  until: _mariadb_galera_cluster_node.status.ActiveState == "active"
+  retries: 60
+  delay: 5
+  delegate_to: "{{ galera_mysql_first_node }}"
+  run_once: true
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname != galera_mysql_first_node
+
+- name: setup_cluster | sleep for 15 seconds to wait for node WSREP prepared state
+  wait_for:
+    timeout: 15
+  delegate_to: localhost
+  become: false
+  when: >
+    not galera_cluster_configured.stat.exists
+
+- name: setup_cluster | joining galera cluster
+  service:
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "started"
+  become: true
+  throttle: 1
+  register: "_mariadb_galera_cluster_joined"
+  until: _mariadb_galera_cluster_joined.status.ActiveState == "active"
+  retries: 60
+  delay: 5
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname != galera_mysql_first_node
+
+- name: setup_cluster | sleep for 15 seconds to wait for node WSREP prepared state
+  wait_for:
+    timeout: 15
+  delegate_to: localhost
+  become: false
+  when: >
+    not galera_cluster_configured.stat.exists
+
+- name: setup_cluster | configuring final galera config for first node
+  template:
+    src: "{{ item }}.j2"
+    dest: "/{{ item }}"
+    mode: "0644"
+  loop: "{{ mariadb_confs }}"
+  become: true
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname == galera_mysql_first_node
+
+- name: setup_cluster | restarting first node with final galera config
+  service:
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "restarted"
+  become: true
+  register: "_mariadb_galera_cluster_node_restarted"
+  when: >
+    not galera_cluster_configured.stat.exists and
+    inventory_hostname == galera_mysql_first_node
+
+- name: setup_cluster | marking node as configured for galera cluster
+  file:
+    path: "/etc/galera_cluster_configured"
+    state: "touch"
+    mode: "0644"
+  become: true
+  when: not galera_cluster_configured.stat.exists
+
+- name: setup_cluster | ensure node is fully started (synced with cluster)
+  service:
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "started"
+  become: true
+  register: "_mariadb_galera_cluster_node"
+  until: _mariadb_galera_cluster_node.status.ActiveState == "active"
+  retries: 60
+  delay: 5
+
+# Configuring root access, mysql_users, mysql_databases
+# need database to be ready to receive SQL statements
+# we need to be sure that WSREP is ready
+- name: setup_cluster | sleep for 15 seconds to wait for node WSREP prepared state
+  wait_for: # noqa 503
+    timeout: 15
+  delegate_to: localhost
+  become: false
+  when: >
+    _mariadb_galera_cluster_reconfigured.changed or
+    _mariadb_galera_cluster_node_restarted.changed

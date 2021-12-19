@@ -1,0 +1,57 @@
+---
+- name: galera_monitoring | configuring monitor script for galera
+  template:
+    src: "etc/mysql/{{ galera_monitor_script_name }}.j2"
+    dest: "{{ galera_monitor_script_path }}/{{ galera_monitor_script_name }}"
+    owner: "mysql"
+    group: "mysql"
+    mode: "u=rwx,g=rwx,o="
+  become: true
+  register: galera_monitoring_updated
+
+- name: galera_monitoring | restarting mysql on first node
+  service: # noqa 503
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "restarted"
+  become: true
+  when: >
+    inventory_hostname == galera_mysql_first_node and
+    galera_monitoring_updated.changed
+
+- name: galera_monitoring | waiting for mysql to start on first node
+  service: # noqa 503
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "started"
+  become: true
+  register: "_mariadb_galera_cluster_node"
+  until: _mariadb_galera_cluster_node.status.ActiveState == "active"
+  retries: 60
+  delay: 5
+  delegate_to: "{{ galera_mysql_first_node }}"
+  run_once: true
+  when: >
+    inventory_hostname != galera_mysql_first_node and
+    galera_monitoring_updated.changed
+
+- name: galera_monitoring | restarting mysql on additional servers
+  service: # noqa 503
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "restarted"
+  become: true
+  throttle: 1
+  when: >
+    inventory_hostname != galera_mysql_first_node and
+    galera_monitoring_updated.changed
+
+- name: galera_monitoring | waiting for mysql to start on other nodes
+  service: # noqa 503
+    name: "{{ mariadb_systemd_service_name }}"
+    state: "started"
+  become: true
+  register: "_mariadb_galera_cluster_node"
+  until: _mariadb_galera_cluster_node.status.ActiveState == "active"
+  retries: 60
+  delay: 5
+  when: >
+    inventory_hostname != galera_mysql_first_node and
+    galera_monitoring_updated.changed

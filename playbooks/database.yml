@@ -2,6 +2,6 @@
 - name: Playbook for database Setup
   hosts: database
   tasks:
-    - name: database role
+    - name: Include ansible-mariadb-galera-cluster
       include_role:
-        name: 
+        name: mariadb

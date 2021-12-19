@@ -1,0 +1,18 @@
+---
+# vars file for ansible-mariadb-galera-cluster
+
+galera_cluster_nodes: "\
+  {% set _galera_cluster_nodes = [] %}\
+  {% for host in groups[ galera_cluster_nodes_group ] %}\
+  {{   _galera_cluster_nodes.append( host ) }}\
+  {% endfor %}\
+  {{ _galera_cluster_nodes }}"
+
+mariadb_login_unix_socket: "/var/lib/mysql/mysql.sock"
+mariadb_certificates_dir: "/etc/my.cnf.d/certificates"
+mariadb_systemd_service_name: "mysql"
+mariadb_confs:
+  - "etc/my.cnf.d/mariadb-server.cnf"
+mariadb_temp_confs:
+  - "etc/my.cnf.d/mariadb-server.cnf"
+galera_wsrep_provider: "/usr/lib64/galera/libgalera_smm.so"

@@ -1,0 +1,15 @@
+---
+- name: "Ensures required packages are installed"
+  include_tasks: fastpackages/install.yml
+  vars:
+    packages_list:
+      - procps-ng
+      - mailcap
+      - unzip
+      - firewalld
+
+- name: "Ensure that firewalld service is running"
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: started

@@ -1,0 +1,28 @@
+---
+- include_tasks: prereqs.yml
+- include_tasks: install-jb-httpd.yml
+- include_tasks: ssl.yml
+
+- set_fact:
+    jbcs_host: "{{ inventory_hostname }}"
+
+- name: "Ensures mod_cluster configuration is deployed"
+  template:
+    src: templates/mod_cluster.conf.j2
+    dest: /opt/jbcs-httpd24-2.4/httpd/conf.d/mod_cluster.conf
+  notify:
+    - 'expire mod_cluster cache and restart'
+
+- name: configure firewall for JBCS ports
+  become: yes
+  firewalld:
+    port: "{{ port }}"
+    permanent: true
+    state: enabled
+    immediate: yes
+  loop:
+    - "80/tcp"
+    - "443/tcp"
+    - "6666/tcp"
+  loop_control:
+    loop_var: port

@@ -5,7 +5,5 @@ collections:
   - name: middleware_automation.infinispan
     version: ">=0.0.6"
   - name: middleware_automation.keycloak
-    version: ">=0.0.2"
-  - name: mrlesmithjr.mariadb_galera_cluster
+    version: ">=0.0.3"
   - name: community.general
-  - name: community.postgresql

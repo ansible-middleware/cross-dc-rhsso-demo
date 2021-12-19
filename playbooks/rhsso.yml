@@ -12,3 +12,6 @@
         name: keycloak
       vars:
         keycloak_admin_password: "{{ admin_pass }}"
+  serial:
+   - 1       # first isolated node that runs liquibase
+   - "100%"  # all other nodes

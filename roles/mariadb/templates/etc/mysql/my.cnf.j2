@@ -1,0 +1,82 @@
+# {{ ansible_managed }}
+
+[client]
+port = 3306
+socket = {{ mariadb_login_unix_socket }}
+
+[mysqld_safe]
+nice = 0
+socket = {{ mariadb_login_unix_socket }}
+
+[mysqld]
+basedir = /usr
+datadir	= {{ mariadb_mysql_settings['datadir'] }}
+expire_logs_days = {{ mariadb_mysql_settings['expire_logs_days'] }}
+key_buffer_size = {{ mariadb_mysql_settings['key_buffer_size'] }}
+lc-messages-dir = /usr/share/mysql
+log_error = /var/log/mysql/error.log
+max_allowed_packet = {{ mariadb_mysql_settings['max_allowed_packet'] }}
+max_binlog_size = {{ mariadb_mysql_settings['max_binlog_size'] }}
+myisam-recover = BACKUP
+pid-file = /var/run/mysqld/mysqld.pid
+port = {{ mariadb_mysql_port }}
+query_cache_limit = {{ mariadb_mysql_settings['query_cache_limit'] }}
+query_cache_size = {{ mariadb_mysql_settings['query_cache_size'] }}
+skip-external-locking
+socket = {{ mariadb_login_unix_socket }}
+thread_cache_size = {{ mariadb_mysql_settings['thread_cache_size'] }}
+thread_stack = {{ mariadb_mysql_settings['thread_stack'] }}
+tmpdir = /tmp
+user = mysql
+
+{% if mariadb_charset_server | default('auto') != 'auto' %}
+character-set-server  = {{ mariadb_charset_server }}
+init-connect          = 'SET NAMES {{ mariadb_charset_server }}'
+{% endif %}
+{% if mariadb_collation_server | default('auto') != 'auto' %}
+collation-server      = {{ mariadb_collation_server }}
+{% endif %}
+
+{% if mariadb_innodb_buffer_pool_size | default('auto') != "auto" %}
+innodb_buffer_pool_size = {{ mariadb_innodb_buffer_pool_size }}
+{% endif %}
+{% if mariadb_innodb_lock_wait_timeout | default('50') != "50" %}
+innodb_lock_wait_timeout = {{ mariadb_innodb_lock_wait_timeout }}
+{% endif %}
+{% if mariadb_innodb_buffer_pool_instances | default('auto') != "auto" %}
+innodb_buffer_pool_instances = {{ mariadb_innodb_buffer_pool_instances }}
+{% endif %}
+{% if mariadb_innodb_read_io_threads | default('auto') != "auto" %}
+innodb_read_io_threads = {{ mariadb_innodb_read_io_threads }}
+{% endif %}
+{% if mariadb_innodb_write_io_threads | default('auto') != "auto" %}
+innodb_write_io_threads = {{ mariadb_innodb_write_io_threads }}
+{% endif %}
+{% if mariadb_max_connections | default('auto') != "auto" %}
+max_connections = {{ mariadb_max_connections }}
+{% endif %}
+{% if mariadb_slow_query_log_enabled %}
+slow_query_log
+{% endif %}
+{% if mariadb_long_query_time | default('auto') != "auto" %}
+long_query_time = {{ mariadb_long_query_time }}
+{% endif %}
+
+{% if mariadb_tls_files and mariadb_tls_files|length == 3 %}
+ssl_ca = {{ mariadb_certificates_dir }}/{{ mariadb_tls_files.ca_cert.name }}
+ssl_cert = {{ mariadb_certificates_dir }}/{{ mariadb_tls_files.server_cert.name }}
+ssl_key = {{ mariadb_certificates_dir }}/{{ mariadb_tls_files.server_key.name }}
+{% endif %}
+
+[mysqldump]
+max_allowed_packet = 16M
+quick
+quote-names
+
+[mysql]
+default-character-set		= {{ mariadb_charset_client }}
+
+[isamchk]
+key_buffer_size = 16M
+
+!includedir /etc/mysql/conf.d/

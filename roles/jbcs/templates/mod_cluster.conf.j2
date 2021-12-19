@@ -1,0 +1,34 @@
+# mod_proxy_balancer should be disabled when mod_cluster is used
+LoadModule proxy_cluster_module modules/mod_proxy_cluster.so
+LoadModule cluster_slotmem_module modules/mod_cluster_slotmem.so
+LoadModule manager_module modules/mod_manager.so
+LoadModule advertise_module modules/mod_advertise.so
+
+MemManagerFile /opt/jbcs-httpd24-2.4/httpd/cache/mod_cluster
+PersistSlots On
+
+<VirtualHost *:80>
+  ProxyPreserveHost On
+  ProxyRequests Off
+  ServerName {{ ansible_nodename }}
+  ServerAlias {{ jbcs_host }}
+  ProxyPass / http://{{ jbcs_host }}:{{ httpd.mod_cluster.port }}/
+  ProxyPassReverse / http://{{ jbcs_host }}:{{ httpd.mod_cluster.port }}/
+</VirtualHost>
+
+<IfModule manager_module>
+  Listen 6666
+  <VirtualHost {{ jbcs_host }}:{{ httpd.mod_cluster.port }}>
+    DirectoryIndex disabled
+    <Directory />
+      Require {{ httpd.mod_cluster.require }}
+    </Directory>
+    ServerAdvertise on {{ jbcs_host }}:{{ httpd.mod_cluster.port }}
+    AdvertiseFrequency 5
+    EnableMCPMReceive
+    <Location /mod_cluster_manager>
+      SetHandler mod_cluster-manager
+      Require {{ httpd.mod_cluster.require }}
+   </Location>
+  </VirtualHost>
+</IfModule>
