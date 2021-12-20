@@ -5,5 +5,5 @@ collections:
   - name: middleware_automation.infinispan
     version: ">=0.0.7"
   - name: middleware_automation.keycloak
-    version: ">=0.0.3"
+    version: ">=0.0.4"
   - name: community.general

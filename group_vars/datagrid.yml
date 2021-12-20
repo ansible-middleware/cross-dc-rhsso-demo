@@ -2,7 +2,7 @@
 jdg_url: http://localhost:11222
 admin_pass: admin_password
 user_accounts:
-  - { name: 'ggraziol', password: 'adminpassword', roles: 'deployer' }
+  - { name: 'ggraziol', password: 'adminpassword', roles: 'admin' }
   - { name: 'rpelisse', password: 'password', roles: 'observer' }
   - { name: 'ablock', password: 'password', roles: 'observer' }
   - { name: 'rhsso', password: 'rhssopassword', roles: 'application' }
