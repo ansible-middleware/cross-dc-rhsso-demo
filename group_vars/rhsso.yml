@@ -8,5 +8,5 @@ admin_pass: "redhat1!"
 infinispan_user: rhsso
 infinispan_pass: rhssopassword
 
-postgres_db_user: keycloak-user
-postgres_db_pass: keycloak-pass
+mariadb_db_user: keycloak-user
+mariadb_db_pass: keycloak-pass

@@ -7,3 +7,6 @@ user_accounts:
   - { name: 'ablock', password: 'password', roles: 'observer' }
   - { name: 'rhsso', password: 'rhssopassword', roles: 'application' }
 infinispan_keycloak_caches: True
+
+mariadb_db_user: keycloak-user
+mariadb_db_pass: keycloak-pass
