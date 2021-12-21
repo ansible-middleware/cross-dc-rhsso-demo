@@ -5,9 +5,6 @@ httpd:
   mod_cluster:
     port: 6666
     require: "all granted"
-  rpm:
-    name: jbcs-httpd24
-    nossl: true
   home: /opt/jbcs-httpd24-2.4/
   user:
     name: apache

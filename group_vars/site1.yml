@@ -1,3 +1,3 @@
 ---
 infinispan_url: site1-datagrid1
-mariadb_jdbc_url: jdbc:mariadb://site1-database1:3306/keycloak
+mariadb_jdbc_url: jdbc:mariadb:sequential://site1-database1,site1-database2,site2-database1:3306/keycloak
