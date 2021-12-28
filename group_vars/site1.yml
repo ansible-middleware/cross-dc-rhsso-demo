@@ -1,3 +1,4 @@
 ---
 infinispan_url: site1-datagrid1
+jdg_jgroups_relay_site: site1
 mariadb_jdbc_url: jdbc:mariadb:sequential://site1-database1,site1-database2,site2-database1:3306/keycloak
