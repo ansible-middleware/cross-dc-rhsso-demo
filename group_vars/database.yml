@@ -2,6 +2,9 @@
 galera_enable_mariadb_repo: False
 galera_cluster_name: 'rhsso-db-cluster'
 galera_cluster_nodes_group: 'database'
+mariadb_charset_server: utf8
+mariadb_collation_server: utf8_general_ci
+mariadb_charset_client: utf8
 mariadb_mysql_root_password: ''
 mariadb_databases:
   - name: keycloak
