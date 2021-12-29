@@ -14,13 +14,17 @@ echo "Create podman containers"
 echo "========================"
 echo -n "Starting container loadbalancer0...."
 podman run --name=loadbalancer0 --network loadbalancer --systemd=true  --workdir /work -v $(pwd):/work:rw  -d localhost/ubi8/ubi-ansible-demo:latest /sbin/init
+DNSFILE="/run/containers/cni/dnsname/loadbalancer/addnhosts"
+if [ ! -f "${DNSFILE}" ]; then
+    DNSFILE="/run/user/0/containers/cni/dnsname/loadbalancer/addnhosts"
+fi
 for zone in site1 site2 ; do
     echo "Site: ${zone}"
     while read node ; do
         echo -n "Starting container ${node}.... "
         podman run --name=${node} --network ${zone} --systemd=true  --workdir /work -v $(pwd):/work:rw  -d localhost/ubi8/ubi-ansible-demo:latest /sbin/init
         # makes loadbalancer visible in sites1 (https://github.com/containers/podman/issues/8399)
-        sleep 2 && podman exec -t ${node} sed -ci "$ a $(cat /run/user/0/containers/cni/dnsname/loadbalancer/addnhosts)" /etc/hosts > /dev/null
+        sleep 2 && podman exec -t ${node} sed -ci "$ a $(cat ${DNSFILE})" /etc/hosts > /dev/null
     done < <( ansible-inventory -i ../scenario --list | jq -r ".${zone}.hosts[]")
 done
 podman network reload --all 2>&1 >/dev/null
