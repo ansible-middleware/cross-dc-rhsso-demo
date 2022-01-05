@@ -1,0 +1,3 @@
+---
+install_keystore: False
+install_trust_ca: True

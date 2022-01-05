@@ -1,0 +1,7 @@
+---
+- name: Playbook for setting up server identities
+  hosts: all
+  tasks:
+    - name: Install trusted CA certificate
+      include_role:
+        name: certificates

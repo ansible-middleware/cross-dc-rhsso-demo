@@ -1,5 +1,4 @@
 ---
-jdg_url: http://localhost:11222
 admin_pass: admin_password
 user_accounts:
   - { name: 'ggraziol', password: 'adminpassword', roles: 'admin' }
@@ -13,5 +12,14 @@ jdg_jgroups_relay_sites:
   - site1
   - site2
 
-mariadb_db_user: keycloak-user
-mariadb_db_pass: keycloak-pass
+jdb_db_user: keycloak-user
+jdg_db_pass: keycloak-pass
+
+jdg_default_realm_tls: True
+jdg_keystore_path: /etc/pki/java/keystore.jks
+jdg_keystore_alias: "*.rhssocrossdc.com"
+
+install_keystore: True
+
+jdg_bind_address: "{{inventory_hostname}}.rhssocrossdc.com"
+jdg_url: "https://{{inventory_hostname}}.rhssocrossdc.com:11222"

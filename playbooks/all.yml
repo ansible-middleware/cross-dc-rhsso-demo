@@ -1,4 +1,6 @@
 ---
+- import_playbook: certificates.yml
+
 - import_playbook: loadbalancer.yml
 
 - import_playbook: database.yml

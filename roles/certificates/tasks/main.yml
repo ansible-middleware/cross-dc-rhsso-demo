@@ -1,0 +1,22 @@
+---
+- name: Install CA in shared truststore
+  copy:
+    src: my-root-ca.crt.pem
+    dest: /usr/share/pki/ca-trust-source/anchors/
+    owner: root
+    group: root
+    mode: 0444    
+  when: install_trust_ca
+  notify:
+    - update_ca_trust
+
+- name: Install keystore
+  copy:
+    src: keystore.jks
+    dest: "{{ jdg_keystore_path }}"
+    owner: root
+    group: root
+    mode: 0444
+  when: install_keystore
+  notify:
+    - update_ca_trust
