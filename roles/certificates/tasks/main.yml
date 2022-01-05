@@ -20,3 +20,10 @@
   when: install_keystore
   notify:
     - update_ca_trust
+
+- name: Retrive trusted CAs and add own CA if not present
+  command: keytool -list -keystore /etc/pki/java/cacerts -storepass changeit
+  register: cacerts
+  changed_when: ca_cn not in cacerts.stdout
+  notify:
+    - update_ca_trust   

@@ -1,0 +1,15 @@
+---
+- name: Playbook for installing prerequisites
+  hosts: all
+  tasks:
+    - name: "Install required or good to have packages"
+      include_role:
+        name: fastpackages
+      vars:
+        packages_list:
+          - procps-ng
+          - mailcap
+          - unzip
+          - firewalld
+          - ca-certificates
+          - "{{ jvm_package }}"
