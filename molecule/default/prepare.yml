@@ -6,21 +6,9 @@
       yum:
         use_backend: dnf
         name: 
-          - sudo
-          - iproute
-          - net-tools
           - bind-utils
           - glibc-locale-source
           - glibc-langpack-en
-          - procps-ng
           - mailcap
           - unzip
-          - firewalld
-          - ca-certificates          
         state: present
-    - name: Upgrade systemd to latest
-      yum:
-        use_backend: dnf
-        name:
-          - systemd
-        state: latest

@@ -137,6 +137,7 @@ provisioner:
     ssh_connection:
       pipelining: false
   playbooks:
+    create: create.yml
     prepare: prepare.yml
     converge: converge.yml
   env:

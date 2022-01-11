@@ -1,0 +1,19 @@
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+{% if item.env is defined %}
+{% for var, value in item.env.items() %}
+{% if value %}
+ENV {{ var }} {{ value }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+RUN dnf makecache \
+ && dnf --assumeyes update systemd \
+ && dnf --assumeyes install \
+     /usr/bin/python3 /usr/bin/python3-config /usr/bin/dnf-3 sudo bash iproute firewalld ca-certificates procps-ng net-tools \
+ && dnf clean all
