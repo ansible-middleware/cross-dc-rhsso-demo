@@ -1,6 +1,6 @@
 ---
 keycloak_ha_enabled: True
-keycloak_modcluster_url: loadbalancer0
+keycloak_modcluster_url: "loadbalancer0{{ domain_name }}"
 keycloak_jdbc_engine: mariadb
 keycloak_db_user: keycloak-user
 keycloak_db_pass: keycloak-pass

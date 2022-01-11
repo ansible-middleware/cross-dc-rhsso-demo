@@ -12,4 +12,4 @@ httpd:
     name: apache
     id: 48
 
-jbcs_host: loadbalancer0
+jbcs_host: "loadbalancer0{{ domain_name }}"

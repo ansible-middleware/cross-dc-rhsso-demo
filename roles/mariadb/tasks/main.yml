@@ -33,6 +33,7 @@
   loop:
     - "3306/tcp"
     - "4567/tcp"
+    - "4444/tcp"
 
 - import_tasks: install.yml
   tags:
