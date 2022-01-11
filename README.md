@@ -15,7 +15,7 @@ The final architecture looks like:
 
 * rhel 8.4 with registered subscription
 * ansible 2.9 / python 3.9
-* `ansible-galaxy collection install -r collections/requirements.yml`
+* `ansible-galaxy collection install -r requirements.yml`
 * python3-netaddr installed on the controller host `dnf install python3-netaddr`
 * a minimum of 9 (or possibly 12) instances for the whole production-like scenario
 
@@ -86,8 +86,9 @@ ansible-playbook -e @rhn-creds.yml -i scenario playbooks/all.yml
 
 ## Security considerations
 
-* By default the playbook deploys self-signed certificates everywhere
-* sso/datagrid communication is via non-tls hotrod protocol, and CRAM-MD5 authentication
+* The playbook deploys certificates signed by a self-signed test CA from the certificates role
+* Datagrid cluster communication is not encrypted; encryption will be added when configurable in the infinispan collection
+
 
 ## License
 

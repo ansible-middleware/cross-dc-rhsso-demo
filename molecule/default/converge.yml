@@ -1,2 +1,19 @@
 ---
+#- import_playbook: ../../playbooks/prerequisites.yml
+
+#- import_playbook: certificates.yml
+
+# - import_playbook: loadbalancer.yml
+#   vars:
+#     ansible_distribution: 'RedHat'
+
+- import_playbook: ../../playbooks/database.yml
+
+- import_playbook: ../../playbooks/datagrid.yml
+  vars:
+    ansible_distribution: 'RedHat'
+
+- import_playbook: ../../playbooks/rhsso.yml
+  vars:
+    ansible_distribution: 'RedHat'
 
