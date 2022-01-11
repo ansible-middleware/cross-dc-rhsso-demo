@@ -11,6 +11,29 @@
     - install
     - config
 
+- name: Ensures required package firewalld are installed
+  yum:
+    name: firewalld
+    state: present
+
+- name: Enable and start the firewalld service
+  become: yes
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: started
+
+- name: Configure firewall for jdg ports
+  become: yes
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: yes
+  loop:
+    - "3306/tcp"
+    - "4567/tcp"
+
 - import_tasks: install.yml
   tags:
     - install

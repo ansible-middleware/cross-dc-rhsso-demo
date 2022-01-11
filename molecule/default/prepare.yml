@@ -1,6 +1,7 @@
 ---
 - name: Prepare
   hosts: all
+  serial: 2
   tasks:
     - name: Install required packages
       yum:
