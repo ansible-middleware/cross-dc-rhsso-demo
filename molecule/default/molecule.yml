@@ -1,0 +1,47 @@
+---
+dependency:
+  name: galaxy
+  options:
+    ignore-certs: True
+    ignore-errors: True
+    requirements-file: ../../requirements.yml
+driver:
+  name: docker
+platforms:
+  - name: instance
+    image: centos:8
+    privileged: true
+    command: "/usr/sbin/init"
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+    ssh_connection:
+      pipelining: false
+  playbooks:
+    converge: converge.yml
+  env:
+    ANSIBLE_FORCE_COLOR: "true"
+  inventory:
+    links:
+      group_vars: ../../group_vars
+    all:
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
+verifier:
+  name: ansible
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    # -   idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
