@@ -33,7 +33,7 @@ jobs:
 
       - name: Run molecule test
         run: |
-          molecule test --scenario-name=podman
+          molecule test
         working-directory: ./cross-dc-rhsso-demo
         env:
           PY_COLORS: "1"

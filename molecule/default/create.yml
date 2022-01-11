@@ -4,19 +4,48 @@
   connection: local
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
+  become: "{{ not (item.rootless|default(true)) }}"
   vars:
-    molecule_labels:
-      owner: molecule
+    podman_exec: "{{ lookup('env','MOLECULE_PODMAN_EXECUTABLE')|default('podman',true) }}"
   tasks:
+    - name: get podman executable path
+      command: which {{ podman_exec }}
+      register: podman_path
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+      changed_when: false
+    - name: save path to executable as fact
+      set_fact:
+        podman_cmd: "{{ podman_path.stdout }}"
+
+    - name: Log into a container registry
+      command: >
+        {{ podman_cmd }} login
+        --username {{ item.registry.credentials.username }}
+        --password {{ item.registry.credentials.password }}
+        --tls-verify={{ item.tls_verify | default(lookup('env', 'DOCKER_TLS_VERIFY')) or false }}
+        {% if lookup('env', 'DOCKER_CERT_PATH') %}--cert-dir {{ item.cert_path | default(lookup('env', 'DOCKER_CERT_PATH') + '/cert.pem') }}{% endif %}
+        {{ item.registry.url }}
+      with_items: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: >-
+          "{{ item.name }} registry username:
+          {{ item.registry.credentials.username | default('None specified') }}"
+      when:
+        - item.registry is defined
+        - item.registry.credentials is defined
+        - item.registry.credentials.username is defined
+
     - name: Check presence of custom Dockerfiles
-      ansible.builtin.stat:
+      stat:
         path: "{{ molecule_scenario_directory + '/' + (item.dockerfile | default( 'Dockerfile.j2')) }}"
       loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "Dockerfile: {{ item.dockerfile | default('None specified') }}"
       register: dockerfile_stats
 
     - name: Create Dockerfiles from image names
-      ansible.builtin.template:
-        # when using embedded playbooks the dockerfile is alonside them
+      template:
         src: >-
           {%- if dockerfile_stats.results[i].stat.exists -%}
           {{ molecule_scenario_directory + '/' + (item.dockerfile | default( 'Dockerfile.j2')) }}
@@ -28,155 +57,134 @@
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         index_var: i
+        label: >-
+          "Dockerfile: {{ item.dockerfile | default('None specified') }};
+          Image: {{ item.image | default('None specified') }}"
       when: not item.pre_build_image | default(false)
       register: platforms
 
-    - name: Discover local Docker images
-      community.docker.docker_image_info:
+    - name: Discover local Podman images
+      containers.podman.podman_image_info:
         name: "molecule_local/{{ item.item.name }}"
-        docker_host: "{{ item.item.docker_host | default(lookup('env', 'DOCKER_HOST') or 'unix://var/run/docker.sock') }}"
-        cacert_path: "{{ item.cacert_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/ca.pem') if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        cert_path: "{{ item.cert_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/cert.pem')  if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        key_path: "{{ item.key_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/key.pem') if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        tls_verify: "{{ item.tls_verify | default(lookup('env', 'DOCKER_TLS_VERIFY')) or false }}"
-      with_items: "{{ platforms.results }}"
-      when:
-        - not item.pre_build_image | default(false)
-      register: docker_images
-
-    - name: Build an Ansible compatible image (new)  # noqa: no-handler
-      when:
-        - platforms.changed or docker_images.results | map(attribute='images') | select('equalto', []) | list | count >= 0
-        - not item.item.pre_build_image | default(false)
-      community.docker.docker_image:
-        build:
-          path: "{{ molecule_ephemeral_directory }}"
-          dockerfile: "{{ item.invocation.module_args.dest }}"
-          pull: "{{ item.item.pull | default(true) }}"
-          args: "{{ item.item.buildargs | default(omit) }}"
-          platform: "{{ item.item.platform | default(omit) }}"
-        name: "molecule_local/{{ item.item.image }}"
-        docker_host: "{{ item.item.docker_host | default(lookup('env', 'DOCKER_HOST') or 'unix://var/run/docker.sock') }}"
-        cacert_path: "{{ item.cacert_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/ca.pem') if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        cert_path: "{{ item.cert_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/cert.pem')  if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        key_path: "{{ item.key_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/key.pem') if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        tls_verify: "{{ item.tls_verify | default(lookup('env', 'DOCKER_TLS_VERIFY')) or false }}"
-        force_source: "{{ item.item.force | default(true) }}"
-        source: build
+        executable: "{{ podman_exec }}"
       with_items: "{{ platforms.results }}"
       loop_control:
-        label: "molecule_local/{{ item.item.image }}"
-      no_log: false
+        label: "{{ item.item.name | default('None specified') }}"
+      when:
+        - not item.pre_build_image | default(false)
+      register: podman_images
+
+    - name: Build an Ansible compatible image  # noqa: no-handler
+      command: >
+        {{ podman_cmd }} build
+        -f {{ item.dest }}
+        -t molecule_local/{{ item.item.image }}
+        {% if item.item.buildargs is defined %}{% for i,k in item.item.buildargs.items() %}--build-arg={{ i }}={{ k }} {% endfor %}{% endif %}
+        {% if item.item.pull is defined %}--pull={{ item.item.pull }}{% endif %}
+      with_items: "{{ platforms.results }}"
+      loop_control:
+        label: "{{ item.item.image | default('None specified') }}"
+      when:
+        - platforms.changed or podman_images.results | map(attribute='images') | select('equalto', []) | list | count >= 0
+        - not item.item.pre_build_image | default(false)
       register: result
       until: result is not failed
       retries: 3
       delay: 30
-
-    - name: Create docker network(s)
-      docker_network:
-        api_version: "{{ item.api_version | default(omit) }}"
-        appends: "{{ item.appends | default(omit) }}"
-        attachable: "{{ item.attachable | default(omit) }}"
-        ca_cert: "{{ item.ca_cert | default(omit) }}"
-        client_cert: "{{ item.client_cert | default(omit) }}"
-        client_key: "{{ item.client_key | default(omit) }}"
-        connected: "{{ item.connected | default(omit) }}"
-        debug: "{{ item.debug | default(omit) }}"
-        docker_host: "{{ item.docker_host | default(omit) }}"
-        driver: "{{ item.driver | default(omit) }}"
-        driver_options: "{{ item.driver_options | default(omit) }}"
-        enable_ipv6: "{{ item.enable_ipv6 | default(omit) }}"
-        force: "{{ item.force | default(omit) }}"
-        internal: "{{ item.internal | default(omit) }}"
-        ipam_config: "{{ item.ipam_config | default(omit) }}"
-        ipam_driver: "{{ item.ipam_driver | default(omit) }}"
-        ipam_driver_options: "{{ item.ipam_driver_options | default(omit) }}"
-        key_path: "{{ item.key_path | default(omit) }}"
-        labels: "{{ item.labels }}"
-        name: "{{ item.name }}"
-        scope: "{{ item.scope | default(omit) }}"
-        ssl_version: "{{ item.ssl_version | default(omit) }}"
-        state: "present"
-        timeout: "{{ item.timeout | default(omit) }}"
-        tls: "{{ item.tls | default(omit) }}"
-        tls_hostname: "{{ item.tls_hostname | default(omit) }}"
-        validate_certs: "{{ item.validate_certs | default(omit) }}"
-      with_items:
-        - name: site1
-          labels: "{{ molecule_labels }}"
-        - name: site2
-          labels: "{{ molecule_labels }}"
-      loop_control:
-        label: "{{ item.name }}"
       no_log: false
 
     - name: Determine the CMD directives
-      ansible.builtin.set_fact:
+      set_fact:
         command_directives_dict: >-
           {{ command_directives_dict | default({}) |
              combine({ item.name: item.command | default('bash -c "while true; do sleep 10000; done"') })
           }}
       with_items: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: >-
+          "{{ item.name }} command:
+          {{ item.command | default('None specified') }}"
       when: item.override_command | default(true)
 
+    # https://github.com/ansible-community/molecule-podman/issues/22
+    - name: Remove possible pre-existing containers
+      command: >
+        {{ podman_cmd }} rm -f -i -v {% for key in molecule_yml.platforms %}{{ key.name }} {% endfor %}
+      register: result
+      changed_when: true
+      failed_when: false
+
+    - name: Discover local podman networks
+      containers.podman.podman_network_info:
+        name: "{{ item.network }}"
+        executable: "{{ podman_exec }}"
+      loop: "{{ molecule_yml.platforms | flatten(levels=1) }}"
+      loop_control:
+        extended: true
+        label: "{{ item.name }}: {{ item.network | default('None specified') }}"
+      register: podman_network
+      when:
+        - item.network is defined
+      failed_when: false
+
+    - debug:
+        msg: "{{ podman_network.results | map(attribute='networks') }}"
+
+    - name: Create podman network dedicated to this scenario
+      containers.podman.podman_network:
+        name: "{{ item }}"
+        executable: "{{ podman_exec }}"
+        subnet: "{{ item.subnet | default(omit) }}"
+      loop: "{{ molecule_yml.platforms | map(attribute='network') | flatten(levels=1) | unique }}"
+      loop_control:
+        extended: true
+        label: "network: {{ item }}"
+
     - name: Create molecule instance(s)
-      community.docker.docker_container:
-        name: "{{ item.name }}"
-        docker_host: "{{ item.docker_host | default(lookup('env', 'DOCKER_HOST') or 'unix://var/run/docker.sock') }}"
-        cacert_path: "{{ item.cacert_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/ca.pem') if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        cert_path: "{{ item.cert_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/cert.pem')  if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        key_path: "{{ item.key_path | default((lookup('env', 'DOCKER_CERT_PATH') + '/key.pem') if lookup('env', 'DOCKER_CERT_PATH') else omit) }}"
-        tls_verify: "{{ item.tls_verify | default(lookup('env', 'DOCKER_TLS_VERIFY')) or false }}"
-        hostname: "{{ item.hostname | default(item.name) }}"
-        image: "{{ item.pre_build_image | default(false) | ternary('', 'molecule_local/') }}{{ item.image }}"
-        pull: "{{ item.pull | default(omit) }}"
-        memory: "{{ item.memory | default(omit) }}"
-        memory_swap: "{{ item.memory_swap | default(omit) }}"
-        state: started
-        recreate: false
-        log_driver: json-file
-        command: "{{ (command_directives_dict | default({}))[item.name] | default(omit) }}"
-        command_handling: "{{ item.command_handling | default('compatibility') }}"
-        user: "{{ item.user | default(omit) }}"
-        pid_mode: "{{ item.pid_mode | default(omit) }}"
-        privileged: "{{ item.privileged | default(omit) }}"
-        security_opts: "{{ item.security_opts | default(omit) }}"
-        devices: "{{ item.devices | default(omit) }}"
-        links: "{{ item.links | default(omit) }}"
-        volumes: "{{ item.volumes | default(omit) }}"
-        mounts: "{{ item.mounts | default(omit) }}"
-        tmpfs: "{{ item.tmpfs | default(omit) }}"
-        capabilities: "{{ item.capabilities | default(omit) }}"
-        sysctls: "{{ item.sysctls | default(omit) }}"
-        exposed_ports: "{{ item.exposed_ports | default(omit) }}"
-        published_ports: "{{ item.published_ports | default(omit) }}"
-        ulimits: "{{ item.ulimits | default(omit) }}"
-        networks: "{{ item.networks | default(omit) }}"
-        network_mode: "{{ item.network_mode | default(omit) }}"
-        networks_cli_compatible: "{{ item.networks_cli_compatible | default(true) }}"
-        purge_networks: "{{ item.purge_networks | default(omit) }}"
-        dns_servers: "{{ item.dns_servers | default(omit) }}"
-        etc_hosts: "{{ item.etc_hosts | default(omit) }}"
-        env: "{{ item.env | default(omit) }}"
-        restart_policy: "{{ item.restart_policy | default(omit) }}"
-        restart_retries: "{{ item.restart_retries | default(omit) }}"
-        tty: "{{ item.tty | default(omit) }}"
-        labels: "{{ molecule_labels | combine(item.labels | default({})) }}"
-        container_default_behavior: "{{ item.container_default_behavior | default('compatibility' if ansible_version.full is version_compare('2.10', '>=') else omit) }}"
-        stop_signal: "{{ item.stop_signal | default(omit) }}"
-        kill_signal: "{{ item.kill_signal | default(omit) }}"
+      command: >
+        {{ podman_cmd }}
+        {% if item.cgroup_manager is defined %}--cgroup-manager={{ item.cgroup_manager }}{% endif %}
+        {% if item.storage_opt is defined %}--storage-opt={{ item.storage_opt }}{% endif %}
+        {% if item.storage_driver is defined %}--storage-driver={{ item.storage_driver }}{% endif %}
+        run
+        -d
+        --name "{{ item.name }}"
+        {% if item.pid_mode is defined %}--pid={{ item.pid_mode }}{% endif %}
+        {% if item.privileged is defined %}--privileged={{ item.privileged }}{% endif %}
+        {% if item.detach is defined %}--detach{% endif %}
+        {% if item.security_opts is defined %}{% for i in item.security_opts %}--security-opt {{ i }} {% endfor %}{% endif %}
+        {% if item.volumes is defined %}{% for i in item.volumes %}--volume {{ i }} {% endfor %}{% endif %}
+        {% if item.tmpfs is defined %}{% for i in item.tmpfs %}--tmpfs={{ i }} {% endfor %}{% endif %}
+        {% if item.capabilities is defined %}{% for i in item.capabilities %}--cap-add={{ i }} {% endfor %}{% endif %}
+        {% if item.exposed_ports is defined %}--expose="{{ item.exposed_ports|join(',') }}"{% endif %}
+        {% if item.published_ports is defined %}{% for i in item.published_ports %}--publish={{ i }} {% endfor %}{% endif %}
+        {% if item.ulimits is defined %}{% for i in item.ulimits %}--ulimit={{ i }} {% endfor %}{% endif %}
+        {% if item.dns_servers is defined %}--dns="{{ item.dns_servers|join(',') }}"{% endif %}
+        {% if item.env is defined %}{% for i,k in item.env.items() %}--env={{ i }}={{ k }} {% endfor %}{% endif %}
+        {% if item.restart_policy is defined %}--restart={{ item.restart_policy }}{% if item.restart_retries is defined %}:{{ item.restart_retries }}{% endif %}{% endif %}
+        {% if item.tty is defined %}--tty={{ item.tty }}{% endif %}
+        {% if item.networks is defined %}--network={{ item.networks| map(attribute='name')|join(',') }}{% endif %}
+        {% if item.ip is defined %}--ip={{ item.ip }}{% endif %}
+        {% if item.etc_hosts is defined %}{% for i,k in item.etc_hosts.items() %}{% if i != item.name %}--add-host {{ i }}:{{ k }} {% endif %}{% endfor %}{% endif %}
+        {% if item.hostname is defined %}--hostname={{ item.hostname }}{% elif item.name is defined %}--hostname={{ item.name }}{% endif %}
+        {% if item.systemd is defined %}--systemd={{ item.systemd|string|lower }}{% endif %}
+        {{ item.pre_build_image | default(false) | ternary('', 'molecule_local/') }}{{ item.image }}
+        {{ (command_directives_dict | default({}))[item.name] | default('') }}
       register: server
       with_items: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
-      no_log: false
       async: 7200
       poll: 0
+      changed_when: true
 
     - name: Wait for instance(s) creation to complete
-      ansible.builtin.async_status:
+      become: "{{ not item.item.rootless | default(omit) }}"
+      async_status:
         jid: "{{ item.ansible_job_id }}"
-      register: docker_jobs
-      until: docker_jobs.finished
+      register: podman_jobs
+      until: podman_jobs.finished
       retries: 300
       with_items: "{{ server.results }}"
+      loop_control:
+        label: "{{ item.item.name | default('Unnamed') }}"

@@ -1,141 +1,136 @@
 ---
-dependency:
-  name: galaxy
 driver:
-  name: podman
+  name: docker
 platforms:
   - name: site1-database1
     image: centos:8
+    pre_build_image: true
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     groups:
       - database
       - site1
     networks:
       - name: site1
       - name: site2
-    network: site1
+    network_mode: site1
   - name: site1-database2
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     groups:
       - database
       - site1
     networks:
       - name: site1
       - name: site2
-    network: site1
+    network_mode: site1
   - name: site2-database1
     image: centos:8
+    pre_build_image: true
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     groups:
       - database
       - site2
     networks:
       - name: site1
       - name: site2
-    network: site2
+    network_mode: site2
   - name: site1-datagrid1
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - datagrid
       - site1
     networks:
       - name: site1
       - name: site2
-    network: site1
+    network_mode: site1
   - name: site1-datagrid2
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - datagrid
       - site1
     networks:
       - name: site1
       - name: site2
-    network: site1
+    network_mode: site1
   - name: site2-datagrid1
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - datagrid
       - site2
     networks:
       - name: site1
       - name: site2
-    network: site2
+    network_mode: site2
   - name: site2-datagrid2
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - datagrid
       - site2
     networks:
       - name: site1
       - name: site2
-    network: site2
+    network_mode: site2
   - name: site1-rhsso1
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - rhsso
       - site1
     networks:
       - name: site1
       - name: site2
-    network: site1
+    network_mode: site1
   - name: site1-rhsso2
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - rhsso
       - site2
     networks:
       - name: site1
       - name: site2
-    network: site1
+    network_mode: site1
   - name: site2-rhsso1
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - rhsso
       - site2
     networks:
       - name: site1
       - name: site2
-    network: site2
+    network_mode: site2
   - name: site2-rhsso2
     image: centos:8
     privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
+    command: "/usr/sbin/init"
     groups:
       - rhsso
       - site2
     networks:
       - name: site1
       - name: site2
-    network: site2
+    network_mode: site2
 provisioner:
   name: ansible
   config_options:
@@ -145,7 +140,7 @@ provisioner:
       pipelining: false
   playbooks:
     create: create.yml
-    #prepare: prepare.yml
+    prepare: prepare.yml
     converge: converge.yml
   env:
     ANSIBLE_FORCE_COLOR: "true"

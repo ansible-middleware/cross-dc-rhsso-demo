@@ -4,6 +4,8 @@ FROM {{ item.registry.url }}/{{ item.image }}
 FROM {{ item.image }}
 {% endif %}
 
+ENV container docker
+
 {% if item.env is defined %}
 {% for var, value in item.env.items() %}
 {% if value %}
@@ -11,17 +13,11 @@ ENV {{ var }} {{ value }}
 {% endif %}
 {% endfor %}
 {% endif %}
-ENV container podman
-STOPSIGNAL SIGRTMIN+3
-VOLUME [ "/tmp", "/run", "/run/lock" ]
-WORKDIR /
-
-
 
 RUN dnf makecache \
- && dnf -y install \
-     /usr/bin/python3 /usr/bin/python3-config sudo bash iproute firewalld ca-certificates \
-     procps-ng net-tools bind-utils unzip \
+ && dnf --assumeyes install \
+     /usr/bin/python3 /usr/bin/python3-config dnf systemd sudo bash iproute firewalld ca-certificates \
+     procps-ng net-tools bind-utils glibc-locale-source glibc-langpack-en mailcap unzip \
  && dnf clean all
 
 RUN cd /lib/systemd/system/sysinit.target.wants/; \
@@ -35,4 +31,6 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
     /lib/systemd/system/basic.target.wants/* \
     /lib/systemd/system/anaconda.target.wants/*
 
-CMD [ "/lib/systemd/systemd", "log-level=info", "unit=sysinit.target" ]
+VOLUME [ "/sys/fs/cgroup" ]
+
+CMD ["/usr/sbin/init"]
