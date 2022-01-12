@@ -1,4 +1,7 @@
 ---
+dependency:
+  name: shell
+  command: ansible-galaxy collection install -r requirements.yml -p /home/runner/.ansible/collections --force-with-deps
 driver:
   name: docker
 platforms:

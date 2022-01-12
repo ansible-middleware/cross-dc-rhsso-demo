@@ -1,4 +1,7 @@
 ---
+dependency:
+  name: shell
+  command: ansible-galaxy collection install -r molecule/default/requirements.yml -p /home/runner/.ansible/collections --force-with-deps
 driver:
   name: podman
 platforms:
@@ -139,8 +142,6 @@ provisioner:
   config_options:
     defaults:
       interpreter_python: auto_silent
-    ssh_connection:
-      pipelining: false
   playbooks:
     create: create.yml
     #prepare: prepare.yml
@@ -160,7 +161,7 @@ scenario:
     - lint
     - cleanup
     - destroy
-    #- syntax
+    - syntax
     - create
     - prepare
     - converge
