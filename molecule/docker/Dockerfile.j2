@@ -14,10 +14,13 @@ ENV {{ var }} {{ value }}
 {% endfor %}
 {% endif %}
 
+VOLUME [ "/tmp", "/run", "/run/lock" ]
+WORKDIR /
+
 RUN dnf makecache \
  && dnf --assumeyes install \
      /usr/bin/python3 /usr/bin/python3-config dnf systemd sudo bash iproute firewalld ca-certificates \
-     procps-ng net-tools bind-utils glibc-locale-source glibc-langpack-en mailcap unzip \
+     procps-ng net-tools bind-utils unzip \
  && dnf clean all
 
 RUN cd /lib/systemd/system/sysinit.target.wants/; \
@@ -30,7 +33,5 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
     /lib/systemd/system/sockets.target.wants/*initctl* \
     /lib/systemd/system/basic.target.wants/* \
     /lib/systemd/system/anaconda.target.wants/*
-
-VOLUME [ "/sys/fs/cgroup" ]
 
 CMD ["/usr/sbin/init"]

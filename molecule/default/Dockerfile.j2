@@ -16,8 +16,6 @@ STOPSIGNAL SIGRTMIN+3
 VOLUME [ "/tmp", "/run", "/run/lock" ]
 WORKDIR /
 
-
-
 RUN dnf makecache \
  && dnf -y install \
      /usr/bin/python3 /usr/bin/python3-config sudo bash iproute firewalld ca-certificates \

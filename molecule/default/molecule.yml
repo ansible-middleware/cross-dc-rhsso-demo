@@ -1,7 +1,7 @@
 ---
 dependency:
   name: shell
-  command: ansible-galaxy collection install -r molecule/default/requirements.yml -p /home/runner/.ansible/collections --force-with-deps
+  command: ansible-galaxy collection install -r molecule/default/requirements.yml -p $HOME/.ansible/collections --force-with-deps
 driver:
   name: podman
 platforms:
@@ -29,18 +29,6 @@ platforms:
       - name: site1
       - name: site2
     network: site1
-  - name: site2-database1
-    image: centos:8
-    privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
-    groups:
-      - database
-      - site2
-    networks:
-      - name: site1
-      - name: site2
-    network: site2
   - name: site1-datagrid1
     image: centos:8
     privileged: true
@@ -77,18 +65,6 @@ platforms:
       - name: site1
       - name: site2
     network: site2
-  - name: site2-datagrid2
-    image: centos:8
-    privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
-    groups:
-      - datagrid
-      - site2
-    networks:
-      - name: site1
-      - name: site2
-    network: site2
   - name: site1-rhsso1
     image: centos:8
     privileged: true
@@ -114,18 +90,6 @@ platforms:
       - name: site2
     network: site1
   - name: site2-rhsso1
-    image: centos:8
-    privileged: true
-    systemd: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
-    groups:
-      - rhsso
-      - site2
-    networks:
-      - name: site1
-      - name: site2
-    network: site2
-  - name: site2-rhsso2
     image: centos:8
     privileged: true
     systemd: true

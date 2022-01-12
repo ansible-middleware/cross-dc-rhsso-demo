@@ -1,30 +1,14 @@
 ---
 dependency:
   name: shell
-  command: ansible-galaxy collection install -r requirements.yml -p /home/runner/.ansible/collections --force-with-deps
+  command: ansible-galaxy collection install -r molecule/docker/requirements.yml -p $HOME/.ansible/collections --force-with-deps
 driver:
   name: docker
 platforms:
   - name: site1-database1
     image: centos:8
-    pre_build_image: true
     privileged: true
-    command: "/usr/sbin/init"
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
-    groups:
-      - database
-      - site1
-    networks:
-      - name: site1
-      - name: site2
-    network_mode: site1
-  - name: site1-database2
-    image: centos:8
-    privileged: true
-    command: "/usr/sbin/init"
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - database
       - site1
@@ -34,11 +18,8 @@ platforms:
     network_mode: site1
   - name: site2-database1
     image: centos:8
-    pre_build_image: true
     privileged: true
-    command: "/usr/sbin/init"
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - database
       - site2
@@ -60,7 +41,7 @@ platforms:
   - name: site1-datagrid2
     image: centos:8
     privileged: true
-    command: "/usr/sbin/init"
+    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - datagrid
       - site1
@@ -71,7 +52,7 @@ platforms:
   - name: site2-datagrid1
     image: centos:8
     privileged: true
-    command: "/usr/sbin/init"
+    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - datagrid
       - site2
@@ -82,7 +63,7 @@ platforms:
   - name: site2-datagrid2
     image: centos:8
     privileged: true
-    command: "/usr/sbin/init"
+    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - datagrid
       - site2
@@ -93,7 +74,7 @@ platforms:
   - name: site1-rhsso1
     image: centos:8
     privileged: true
-    command: "/usr/sbin/init"
+    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - rhsso
       - site1
@@ -101,32 +82,10 @@ platforms:
       - name: site1
       - name: site2
     network_mode: site1
-  - name: site1-rhsso2
-    image: centos:8
-    privileged: true
-    command: "/usr/sbin/init"
-    groups:
-      - rhsso
-      - site2
-    networks:
-      - name: site1
-      - name: site2
-    network_mode: site1
   - name: site2-rhsso1
     image: centos:8
     privileged: true
-    command: "/usr/sbin/init"
-    groups:
-      - rhsso
-      - site2
-    networks:
-      - name: site1
-      - name: site2
-    network_mode: site2
-  - name: site2-rhsso2
-    image: centos:8
-    privileged: true
-    command: "/usr/sbin/init"
+    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - rhsso
       - site2
