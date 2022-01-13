@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 # mod_proxy_balancer should be disabled when mod_cluster is used
 LoadModule proxy_cluster_module modules/mod_proxy_cluster.so
 LoadModule cluster_slotmem_module modules/mod_cluster_slotmem.so
@@ -12,8 +13,7 @@ PersistSlots On
   ProxyRequests Off
   ServerName {{ ansible_nodename }}
   ServerAlias {{ jbcs_host }}
-  ProxyPass / http://{{ jbcs_host }}:{{ httpd.mod_cluster.port }}/
-  ProxyPassReverse / http://{{ jbcs_host }}:{{ httpd.mod_cluster.port }}/
+  Redirect permanent / https://{{ jbcs_host }}/
 </VirtualHost>
 
 <IfModule manager_module>

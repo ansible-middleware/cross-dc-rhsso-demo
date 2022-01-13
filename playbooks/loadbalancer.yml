@@ -6,8 +6,6 @@
   roles:
     - redhat_csp_download
   tasks:
-    - set_fact:
-        override_jbcs_bind_address: "{{ ansible_nodename }}"
     - name: "JBoss Core Services"
       include_role:
         name: jbcs

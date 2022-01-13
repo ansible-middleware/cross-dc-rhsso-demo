@@ -3,9 +3,6 @@
 - include_tasks: install-jb-httpd.yml
 - include_tasks: ssl.yml
 
-- set_fact:
-    jbcs_host: "{{ inventory_hostname }}"
-
 - name: "Ensures mod_cluster configuration is deployed"
   template:
     src: templates/mod_cluster.conf.j2

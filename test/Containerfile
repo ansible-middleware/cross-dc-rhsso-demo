@@ -1,8 +1,20 @@
 FROM registry.access.redhat.com/ubi8/ubi:8.4
 
-RUN yum install -y yum-utils hostname net-tools iproute bind-utils glibc-locale-source glibc-langpack-en
-RUN yum-config-manager --enable ansible-2.9-for-rhel-8-x86_64-rpms
-RUN yum install -y python39 python3-dnf ansible
-RUN yum -y install systemd; yum clean all; (cd /lib/systemd/system/sysinit.target.wants/; for i in ; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); rm -f /lib/systemd/system/multi-user.target.wants/; rm -f /etc/systemd/system/.wants/; rm -f /lib/systemd/system/local-fs.target.wants/; rm -f /lib/systemd/system/sockets.target.wants/*udev; rm -f /lib/systemd/system/sockets.target.wants/initctl; rm -f /lib/systemd/system/basic.target.wants/; rm -f /lib/systemd/system/anaconda.target.wants/;
-VOLUME [ "/sys/fs/cgroup" ]
-CMD ["/usr/sbin/init"]
+RUN yum install -y yum-utils hostname net-tools iproute bind-utils \
+                   glibc-locale-source glibc-langpack-en procps-ng \
+                   firewalld unzip mailcap python39 python3-dnf systemd; \
+    yum clean all
+
+RUN cd /lib/systemd/system/sysinit.target.wants/; \
+    for i in *; do [ $i = systemd-tmpfiles-setup.service ] || rm -f $i; done
+
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/basic.target.wants/* \
+    /lib/systemd/system/anaconda.target.wants/*
+
+VOLUME [ "/tmp", "/run", "/run/lock" ]
+CMD [ "/lib/systemd/systemd", "log-level=info", "unit=sysinit.target" ]
