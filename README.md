@@ -19,9 +19,11 @@ The final architecture looks like:
 * python3-netaddr installed on the controller host `dnf install python3-netaddr`
 * a minimum of 9 (or possibly 12) instances for the whole production-like scenario
 
+
 ## Running in podman
 
 _This configuration is for development and evaluation purposes only._
+
 
 #### Prerequisites
 
@@ -33,37 +35,48 @@ $ dnf install podman-plugins jq
 
 Other requirements for running in podman are:
 * a resonable amount of system memory ( >= 8GB )
-* being able to run rootful containers
-* and dnsname plugin being available for podman external-networks (installed with dnf command above)
+* being able to run privileged containers
+* and dnsname plugin being available for podman external-networks (installed with podman-plugins package above)
+* large max number of threads for user: `echo 350000 > /proc/sys/kernel/threads-max`
 
-The `test/` directory contains a Containerfile definition and a shell script to execute the full CrossDC scenario on podman containers.
+The `test/` directory contains a Containerfile definition and a shell script to execute the full CrossDC scenario on podman containers; the script
+will take care of building the images.
+
+The host running podman _must_ be a registered RHEL8.4+ for building the demo image, or be a registered system using the dnf-subscription-manager-plugin,
+so that subscription-manager runs in "container mode" inside container images.
+
 
 #### Steps
 
-1. Create the three networks for the scenario
-```
-$ podman network create site1
-$ podman network create site2
-$ podman network create loadbalancer
-```
-
-Make sure you get the following when inspecting the networks:
-```
-{ "capabilities": { "aliases": true }, "domainName": "dns.podman", "type": "dnsname" }
-```
-
-2. Create a var-file containing your RHN credentials:
+1. Create a var-file containing your RHN credentials:
 ```
 $ cat rhn-creds.yml
 rhn_username: '<username>'
 rhn_password: '<password>'
 ```
 
-3. Run the podman.sh script:
+2. Run the podman.sh script:
 ```
 cd test/
 ./podman.sh
 ```
+
+The script will setup all necessary podman networks and containers, and perform the playbook execution via ansible.
+
+
+#### Troubleshooting
+
+* services report `OutOfMemoryException`
+
+Sometimes java reports this stacktrace when the JVM is unable to start new threads; check your `/proc/sys/kernel/threads-max` 
+and try to increase the limit. This is more likely to happen if you run in an X user session with many other applications open.
+If the memory is exhausted, not much can be done, we suggest to run the stripped-down molecule scenario instead.
+
+* SElinux alerts or errors
+
+When the script runs podman commands, you may encounter SElinux forbidding ioctls on overlay files for the current users.
+Set SElinux to permissive and create a policy to allow access.
+
 
 ## Running on baremetal/virtualized/cloud
 
@@ -84,9 +97,19 @@ rhn_password: '<password>'
 ansible-playbook -e @rhn-creds.yml -i scenario playbooks/all.yml
 ```
 
+
+## Running the molecule test scenarios
+
+Two molecule scenarios are provided for developemnt and testing with reduced hardware requirements. 
+The scenarios use centos:8 as base image, and can only be used for deploying keycloak/infinispan upstream projects.
+
+* `molecule/default`: scenario based on podman driver, using 3 infinispan, 3 keycloaks and 2 mariadb nodes, no loadbalancer.
+* `molecule/docker`: scenario based on docker driver, using 4 infinispan, 2 rhsso and 2 mariadb nodes, no loadbalancer.
+
+
 ## Security considerations
 
-* The playbook deploys certificates signed by a self-signed test CA from the certificates role
+* The playbook deploys certificates signed by a self-signed test CA from the certificates role for SSO/JDG TLS connectivity on the HotRod protocol.
 * Datagrid cluster communication is not encrypted; encryption will be added when configurable in the infinispan collection
 
 
@@ -100,3 +123,9 @@ See [LICENCE](LICENSE) to view the full text.
 ## Authors
 
 * Guido Grazioli <ggraziol@redhat.com>
+
+
+## Credits
+
+* The mariadb role is liberally taken from the galera-mariadb-cluster role.
+
