@@ -178,7 +178,7 @@
   register: "_mariadb_galera_cluster_joined"
   until: _mariadb_galera_cluster_joined.status.ActiveState == "active"
   retries: 60
-  delay: 5
+  delay: 10
   when: >
     not galera_cluster_configured.stat.exists and
     inventory_hostname != galera_mysql_first_node

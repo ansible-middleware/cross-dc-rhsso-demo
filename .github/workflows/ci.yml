@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        with:
-          path: cross-dc-rhsso-demo
 
       - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v1
@@ -26,15 +24,20 @@ jobs:
       - name: Install yamllint, ansible and molecule
         run: |
           python -m pip install --upgrade pip
-          pip install yamllint 'molecule[docker]~=3.5.2' ansible==2.9.27 netaddr flake8 ansible-lint voluptuous
+          pip install yamllint 'molecule[podman]~=3.5.2' 'molecule[docker]~=3.5.2' ansible==2.9.27 netaddr flake8 ansible-lint voluptuous
 
       # - name: Run sanity tests
       #   run: ansible-test sanity
+      #- name: Create default collection path symlink
+      #  run: |
+      #    mkdir -p /home/runner/.ansible
+      #    ln -s /home/runner/.cache/molecule/cross-dc-rhsso-demo/default/collections/ansible_collections/middleware_automation/keycloak /home/runner/.ansible/collections 
+      #    ln -s /home/runner/.cache/molecule/cross-dc-rhsso-demo/default/collections/ansible_collections/middleware_automation/redhat_csp_download /home/runner/.ansible/collections
+      #    ln -s /home/runner/.cache/molecule/cross-dc-rhsso-demo/default/collections/ansible_collections/middleware_automation/infinispan /home/runner/.ansible/collections
 
       - name: Run molecule test
         run: |
-          molecule test
-        working-directory: ./cross-dc-rhsso-demo
+          molecule test --scenario-name=docker
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"

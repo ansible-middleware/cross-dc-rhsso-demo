@@ -1,0 +1,37 @@
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+ENV container docker
+
+{% if item.env is defined %}
+{% for var, value in item.env.items() %}
+{% if value %}
+ENV {{ var }} {{ value }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+VOLUME [ "/tmp", "/run", "/run/lock" ]
+WORKDIR /
+
+RUN dnf makecache \
+ && dnf --assumeyes install \
+     /usr/bin/python3 /usr/bin/python3-config dnf systemd sudo bash iproute firewalld ca-certificates \
+     procps-ng net-tools bind-utils unzip \
+ && dnf clean all
+
+RUN cd /lib/systemd/system/sysinit.target.wants/; \
+    for i in *; do [ $i = systemd-tmpfiles-setup.service ] || rm -f $i; done
+
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/basic.target.wants/* \
+    /lib/systemd/system/anaconda.target.wants/*
+
+CMD ["/usr/sbin/init"]

@@ -14,7 +14,7 @@
     priv: "{{ item.0.priv | default('*.*:USAGE') }}"
     state: "{{ item.0.state | default('present') }}"
   become: true
-  no_log: true
+  no_log: "{{ rh_no_log }}"
   delegate_to: "{{ galera_mysql_first_node }}"
   run_once: true
   with_subelements:
