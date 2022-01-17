@@ -15,11 +15,11 @@ jdg_jgroups_relay_sites:
 jdb_db_user: keycloak-user
 jdg_db_pass: keycloak-pass
 
-jdg_default_realm_tls: False
+jdg_default_realm_tls: True
 jdg_keystore_path: /etc/pki/java/keystore.jks
 jdg_keystore_alias: "*.rhssocrossdc.com"
 
 install_keystore: True
 
-jdg_bind_address: "{{inventory_hostname}}"
-jdg_url: "https://{{inventory_hostname}}:11222"
+jdg_bind_address: "{{inventory_hostname}}{{domain_name}}"
+jdg_url: "https://{{inventory_hostname}}{{domain_name}}:11222"
