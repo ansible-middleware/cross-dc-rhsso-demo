@@ -60,7 +60,9 @@ CustomLog logs/ssl_request_log \
           "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
 
-ProxyPass / http://{{ jbcs_host }}:{{ httpd.mod_cluster.port }}/
-ProxyPassReverse / http://{{ jbcs_host }}:{{ httpd.mod_cluster.port }}/
+    <Location /mcm>
+      SetHandler mod_cluster-manager
+      Require all granted
+   </Location>
 
 </VirtualHost>
