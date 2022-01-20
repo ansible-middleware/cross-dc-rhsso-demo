@@ -6,6 +6,7 @@
     owner: root
     group: root
     mode: 0444    
+  become: true
   when: install_trust_ca
   notify:
     - update_ca_trust
@@ -17,6 +18,7 @@
     owner: root
     group: root
     mode: 0444
+  become: true
   when: install_keystore
   notify:
     - update_ca_trust
@@ -24,6 +26,7 @@
 - name: Retrive trusted CAs and add own CA if not present
   command: keytool -list -keystore /etc/pki/java/cacerts -storepass changeit
   register: cacerts
+  become: true
   changed_when: ca_cn not in cacerts.stdout
   notify:
-    - update_ca_trust   
+    - update_ca_trust

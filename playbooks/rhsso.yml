@@ -1,6 +1,7 @@
 ---
 - name: Playbook for rhsso Hosts
   hosts: rhsso
+  become: true
   collections:
     - middleware_automation.redhat_csp_download
     - middleware_automation.keycloak

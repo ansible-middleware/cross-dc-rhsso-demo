@@ -1,6 +1,7 @@
 ---
 - name: Playbook for loadbalancer Hosts
   hosts: loadbalancer
+  become: true
   collections:
     - middleware_automation.redhat_csp_download
   roles:
