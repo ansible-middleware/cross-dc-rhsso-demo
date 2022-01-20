@@ -1,6 +1,7 @@
 ---
 - name: Playbook for JDG Hosts
   hosts: datagrid
+  become: true
   collections:
     - middleware_automation.redhat_csp_download
     - middleware_automation.infinispan
