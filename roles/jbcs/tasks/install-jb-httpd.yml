@@ -35,7 +35,7 @@
 
 - name: Download JBoss Core Services from CSP
   redhat_csp_download:
-    url: "https://access.redhat.com/jbossnetwork/restricted/softwareDownload.html?softwareId=96561&product=core.service.apachehttp"
+    url: "https://access.redhat.com/jbossnetwork/restricted/softwareDownload.html?softwareId=103291&product=core.service.apachehttp"
     dest: "{{ zip_file_repo }}/jbcs.zip"
     username: "{{ rhn_username }}"
     password: "{{ rhn_password }}"
