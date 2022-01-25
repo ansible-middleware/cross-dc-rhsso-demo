@@ -17,6 +17,7 @@
   when: mariadb_config_overrides is defined
 
 - name: redhat | installing mariadb mysql
+  become: yes
   yum:
     name:
       - python3-PyMySQL
@@ -27,17 +28,20 @@
     state: "present"
 
 - name: redhat | uninstall mariadb gssapi plugin
+  become: yes
   yum:
     name:
       - mariadb-gssapi-server
     state: "absent"
 
 - name: redhat | ensuring mariadb mysql is enabled on boot
+  become: yes
   service:
     name: "mariadb"
     enabled: true
 
 - name: redhat | start only the first node to add users
+  become: yes
   service:
     name: "mariadb"
     state: started

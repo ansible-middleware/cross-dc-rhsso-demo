@@ -1,5 +1,5 @@
 ---
 install_keystore: False
 install_trust_ca: True
-ca_cn: rhssocrossdc.com
+ca_cn: internal.cloudapp.net
 trust_ca_password: changeit
