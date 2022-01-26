@@ -11,6 +11,6 @@ mariadb_databases:
   - name: keycloak
 mariadb_mysql_users:
   - name: keycloak-user
-    hosts: "{{ (groups['rhsso'] + groups['datagrid']) | flatten | map('regex_replace', '$', '%') | list }}"
+    hosts: "{{ (groups['rhsso'] + groups['datagrid']) | flatten | map('regex_replace', '_[a-z0-9]*$', '%') | list }}"
     password: keycloak-pass
     priv: keycloak.*:ALL

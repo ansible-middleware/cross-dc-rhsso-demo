@@ -12,6 +12,7 @@
     - config
 
 - name: Ensures required package firewalld are installed
+  become: yes
   yum:
     name: firewalld
     state: present

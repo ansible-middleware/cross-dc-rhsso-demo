@@ -17,7 +17,7 @@ jdg_db_pass: keycloak-pass
 
 jdg_default_realm_tls: True
 jdg_keystore_path: /etc/pki/java/keystore.jks
-jdg_keystore_alias: "*.rhssocrossdc.com"
+jdg_keystore_alias: "*{{ domain_name }}"
 
 install_keystore: True
 
