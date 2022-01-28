@@ -115,7 +115,8 @@ provisioner:
   env:
     ANSIBLE_FORCE_COLOR: "true"
   inventory:
-    group_vars: ../group_vars
+    links:
+      group_vars: ../group_vars
     all:
       ansible_python_interpreter: "{{ ansible_playbook_python }}"
 verifier:
