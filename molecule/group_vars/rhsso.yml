@@ -1,0 +1,14 @@
+---
+keycloak_ha_enabled: True
+keycloak_modcluster_url: "loadbalancer0{{ domain_name }}"
+keycloak_frontend_url: "https://{{keycloak_modcluster_url}}/auth"
+keycloak_jdbc_engine: mariadb
+keycloak_db_user: keycloak-user
+keycloak_db_pass: keycloak-pass
+
+admin_pass: "redhat1!"
+
+infinispan_user: rhsso
+infinispan_pass: rhssopassword
+infinispan_use_ssl: True
+

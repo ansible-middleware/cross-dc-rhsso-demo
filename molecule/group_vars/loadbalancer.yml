@@ -1,0 +1,15 @@
+---
+httpd:
+  bind_address: "{{ override_jbcs_bind_address | default('localhost') }}"
+  listen_port: "{{ override_jbcs_listen_port | default('80') }}"
+  mod_cluster:
+    port: 6666
+    require: "all granted"
+  home: /opt/jbcs-httpd24-2.4/
+  user:
+    name: apache
+  group:
+    name: apache
+    id: 48
+
+jbcs_host: "loadbalancer0{{ domain_name }}"

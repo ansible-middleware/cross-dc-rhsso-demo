@@ -1,0 +1,5 @@
+---
+infinispan_url: "site1-datagrid1{{ domain_name }}"
+jdg_jgroups_relay_site: site1
+jdg_jdbc_url: jdbc:mariadb:sequential://site1-database1,site1-database2,site2-database1:3306/keycloak
+keycloak_jdbc_url: jdbc:mariadb:sequential://site1-database1,site1-database2,site2-database1:3306/keycloak

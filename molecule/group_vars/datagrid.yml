@@ -1,0 +1,24 @@
+---
+admin_pass: admin_password
+user_accounts:
+  - { name: 'adminuser', password: 'adminpassword', roles: 'admin' }
+  - { name: 'rhsso', password: 'rhssopassword', roles: 'application' }
+infinispan_keycloak_caches: True
+jdg_version: '8.2.3'
+jdg_keycloak_persistence: True
+jdg_jgroups_relay: True
+jdg_jgroups_relay_sites:
+  - site1
+  - site2
+
+jdb_db_user: keycloak-user
+jdg_db_pass: keycloak-pass
+
+jdg_default_realm_tls: True
+jdg_keystore_path: /etc/pki/java/keystore.jks
+jdg_keystore_alias: "*.rhssocrossdc.com"
+
+install_keystore: True
+
+jdg_bind_address: "{{inventory_hostname}}{{domain_name}}"
+jdg_url: "https://{{inventory_hostname}}{{domain_name}}:11222"
