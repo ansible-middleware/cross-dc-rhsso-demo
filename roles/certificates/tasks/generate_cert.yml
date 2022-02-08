@@ -1,0 +1,23 @@
+---
+- name: Generate an OpenSSL private key
+  openssl_privatekey:
+    path: "roles/certificates/files/{{ server_hostname }}_privkey.pem"
+    size: "{{ key_size }}"
+    type: "{{ key_type }}"
+    backup: yes
+
+- name: Generate an OpenSSL Certificate Signing Request with Subject information
+  openssl_csr:
+    path: "roles/certificates/files/{{ server_hostname }}.csr"
+    privatekey_path: "certificates/{{ server_hostname }}_privkey.pem"
+    country_name: "{{ country_name }}"
+    organization_name: "{{ organization_name }}"
+    email_address: "{{ email_address }}"
+    common_name: "{{ server_hostname }}"
+
+- name: Generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: "roles/certificates/files/{{ cert_name }}.pem"
+    privatekey_path: "roles/certificates/files/{{ server_hostname }}_privkey.pem"
+    csr_path: "roles/certificates/files/{{ server_hostname }}.csr"
+    provider: selfsigned

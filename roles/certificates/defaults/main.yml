@@ -3,3 +3,12 @@ install_keystore: False
 install_trust_ca: True
 ca_cn: internal.cloudapp.net
 trust_ca_password: changeit
+# Vars for generating certs.
+server_hostname: internal.ansiblemiddleware.com
+key_size: 4096
+passphrase: # Set if you want passphrase
+key_type: RSA
+country_name: CA
+email_address: ansible-middleware-core@redhat.com
+organization_name: ansible-middleware
+cert_name: my-root-ca.crt

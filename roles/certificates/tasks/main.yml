@@ -1,4 +1,13 @@
 ---
+- name: Check if cert exists.
+  find:
+    paths: "certificates"
+    patterns: "*.pem"
+  register: cert_data
+
+- import_playbook: roles/certificates/tasks/generate_cert.yml
+  when: cert_data.matched == 0
+  
 - name: Install CA in shared truststore
   copy:
     src: my-root-ca.crt.pem
