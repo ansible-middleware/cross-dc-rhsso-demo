@@ -6,7 +6,7 @@ driver:
   name: podman
 platforms:
   - name: site1-database1
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
@@ -18,7 +18,7 @@ platforms:
       - name: site2
     network: site1
   - name: site1-database2
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
@@ -30,7 +30,7 @@ platforms:
       - name: site2
     network: site1
   - name: site1-datagrid1
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
@@ -42,7 +42,7 @@ platforms:
       - name: site2
     network: site1
   - name: site1-datagrid2
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
@@ -54,7 +54,7 @@ platforms:
       - name: site2
     network: site1
   - name: site2-datagrid1
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
@@ -66,7 +66,7 @@ platforms:
       - name: site2
     network: site2
   - name: site1-rhsso1
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
@@ -78,7 +78,7 @@ platforms:
       - name: site2
     network: site1
   - name: site1-rhsso2
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
@@ -90,7 +90,7 @@ platforms:
       - name: site2
     network: site1
   - name: site2-rhsso1
-    image: centos:8
+    image: rockylinux:8
     privileged: true
     systemd: true
     command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
