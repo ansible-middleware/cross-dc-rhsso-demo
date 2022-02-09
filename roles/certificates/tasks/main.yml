@@ -10,7 +10,7 @@
   
 - name: Install CA in shared truststore
   copy:
-    src: my-root-ca.crt.pem
+    src: "{{ item | basename }}"
     dest: /usr/share/pki/ca-trust-source/anchors/
     owner: root
     group: root
@@ -19,6 +19,8 @@
   when: install_trust_ca
   notify:
     - update_ca_trust
+  with_fileglob:
+    - "roles/certificates/files/*.pem"
 
 - name: Install keystore
   copy:
