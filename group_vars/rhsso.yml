@@ -1,7 +1,8 @@
 ---
 keycloak_ha_enabled: True
 keycloak_modcluster_url: "loadbalancer0{{ domain_name }}"
-keycloak_frontend_url: "https://rhsso.eastus.cloudapp.azure.com/auth"
+#keycloak_frontend_url: "https://rhsso.eastus.cloudapp.azure.com/auth"
+keycloak_frontend_url: "https://rhsso.azuredemos.ansiblemiddleware.com/auth"
 keycloak_jdbc_engine: mariadb
 keycloak_db_user: keycloak-user
 keycloak_db_pass: keycloak-pass

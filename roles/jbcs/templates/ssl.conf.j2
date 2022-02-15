@@ -35,10 +35,13 @@ SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5
 #SSLCipherSuite RC4-SHA:AES128-SHA:HIGH:MEDIUM:!aNULL:!MD5
 #SSLHonorCipherOrder on
 
-SSLCertificateFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/localhost.crt
-SSLCertificateKeyFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/private/localhost.key
+#SSLCertificateFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/localhost.crt
+#SSLCertificateKeyFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/private/localhost.key
 #SSLCertificateChainFile /etc/pki/tls/certs/server-chain.crt
 #SSLCACertificateFile /etc/pki/tls/certs/ca-bundle.crt
+SSLCertificateFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/cert1.pem
+SSLCertificateKeyFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/privkey1.pem
+SSLCertificateChainFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/chain1.pem
 
 #SSLVerifyClient require
 #SSLVerifyDepth  10

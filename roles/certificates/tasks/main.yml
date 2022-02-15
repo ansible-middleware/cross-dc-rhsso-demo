@@ -1,12 +1,17 @@
 ---
-- name: Check if cert exists.
-  find:
-    paths: "certificates"
-    patterns: "*.pem"
-  register: cert_data
+# - name: Check if cert exists.
+#   find:
+#     paths: "certificates"
+#     patterns: "*.pem"
+#   register: cert_data
 
-- import_playbook: roles/certificates/tasks/generate_cert.yml
-  when: cert_data.matched == 0
+# - debug:
+#     msg: "{{ cert_data }}"
+
+# - name: Create certs if they are not provided.
+#   block:
+#     - import_playbook: playbooks/roles/certificates/tasks/generate_cert.yml
+#   when: cert_data.matched == 0
   
 - name: Install CA in shared truststore
   copy:

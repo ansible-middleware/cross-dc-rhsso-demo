@@ -1,2 +1,3 @@
 *.log
 rhn-creds.yml
+*.zip
