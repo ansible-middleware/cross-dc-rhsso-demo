@@ -39,9 +39,9 @@ SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5
 #SSLCertificateKeyFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/private/localhost.key
 #SSLCertificateChainFile /etc/pki/tls/certs/server-chain.crt
 #SSLCACertificateFile /etc/pki/tls/certs/ca-bundle.crt
-SSLCertificateFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/cert1.pem
-SSLCertificateKeyFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/privkey1.pem
-SSLCertificateChainFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/chain1.pem
+SSLCertificateFile /usr/share/pki/ca-trust-source/anchors/cert1.pem
+SSLCertificateKeyFile /usr/share/pki/ca-trust-source/anchors/privkey1.pem
+SSLCertificateChainFile /usr/share/pki/ca-trust-source/anchors/chain1.pem
 
 #SSLVerifyClient require
 #SSLVerifyDepth  10

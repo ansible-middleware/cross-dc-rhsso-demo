@@ -6,3 +6,7 @@
 
 - name: "expire mod_cluster cache and restart"
   include_tasks: tasks/mod_cluster_cache_and_restart.yml
+
+- name: update_ca_trust
+  command: update-ca-trust
+  become: true
