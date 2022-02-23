@@ -1,6 +1,7 @@
-plugin: azure_rm
+plugin: azure.azcollection.azure_rm
 include_vm_resource_groups:
-  - ansible-middileware-rg
+  - ansible-middileware-eastus-rg
+  - ansible-middileware-centralus-rg
 auth_source: auto
 leading_separator: no
 plain_host_names: yes

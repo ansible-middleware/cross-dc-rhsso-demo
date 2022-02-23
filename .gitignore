@@ -1,3 +1,5 @@
 *.log
 rhn-creds.yml
 *.zip
+roles/certificates/files/
+roles/jbcs/files/
