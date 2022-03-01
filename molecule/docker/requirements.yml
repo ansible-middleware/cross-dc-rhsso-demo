@@ -7,5 +7,6 @@ collections:
   - name: middleware_automation.keycloak
     version: ">=0.1.8"
   - name: community.general
+  - name: ansible.posix
   - name: community.docker
     version: ">=1.9.1"

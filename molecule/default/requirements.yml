@@ -7,6 +7,7 @@ collections:
   - name: middleware_automation.keycloak
     version: ">=0.1.7"
   - name: community.general
+  - name: ansible.posix
   - name: containers.podman
     version: ">=1.7.0"
   - name: ansible.posix

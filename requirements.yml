@@ -7,3 +7,4 @@ collections:
   - name: middleware_automation.keycloak
     version: ">=0.2.0"
   - name: community.general
+  - name: ansible.posix
