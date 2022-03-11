@@ -8,22 +8,8 @@
   roles:
     - redhat_csp_download
   tasks:
-    - name: "Configure firewalld for Red Hat SSO"
-      include_role:
-        name: keycloak
-        tasks_from: firewalld.yml
-    - name: "Configure firewalld for sso jgroups cluster"
-      become: yes
-      firewalld:
-        port: "7600/tcp"
-        permanent: true
-        immediate: yes
-        state: enabled
     - name: Keycloak Role
       include_role:
         name: keycloak
       vars:
         keycloak_admin_password: "{{ admin_pass }}"
-  serial:
-   - 1       # first isolated node that runs liquibase
-   - "100%"  # all other nodes

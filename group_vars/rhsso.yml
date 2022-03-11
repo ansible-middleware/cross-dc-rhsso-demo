@@ -6,6 +6,7 @@ keycloak_jdbc_engine: mariadb
 keycloak_db_user: keycloak-user
 keycloak_db_pass: keycloak-pass
 keycloak_rhsso_enable: True
+keycloak_configure_firewalld: True
 
 admin_pass: "redhat1!"
 
