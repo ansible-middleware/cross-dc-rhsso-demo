@@ -1,7 +1,10 @@
 ---
 infinispan_url: "site2-datagrid1{{ domain_name }}"
 jdg_jgroups_relay_site: site2
-jdg_jdbc_url: jdbc:mariadb:sequential://site2-database1,site1-database1,site1-database2:3306/keycloak
-keycloak_jdbc_url: jdbc:mariadb:sequential://site2-database1,site1-database1,site1-database2:3306/keycloak
+jdg_jdbc_url: jdbc:mariadb://site1-database1.mariadb.database.azure.com:3306/keycloak
+keycloak_jdbc_url: jdbc:mariadb://site1-database1.mariadb.database.azure.com:3306/keycloak
 jbcs_host: "site2-loadbalancer{{ domain_name }}"
 keycloak_modcluster_url: "site2-loadbalancer{{ domain_name }}"
+
+jdg_jdbc_user: "keycloak-user@site1-database1"
+jdg_jdbc_pass: "redhat1!"

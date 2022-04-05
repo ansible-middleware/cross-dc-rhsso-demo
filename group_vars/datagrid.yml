@@ -12,8 +12,8 @@ jdg_jgroups_relay_sites:
   - site1
   - site2
 
-jdb_db_user: keycloak-user
-jdg_db_pass: keycloak-pass
+jdb_db_user: "keycloak-user@site1-database1"
+jdg_db_pass: "redhat1!"
 
 jdg_default_realm_tls: True
 jdg_keystore_path: /etc/pki/java/keystore.jks
