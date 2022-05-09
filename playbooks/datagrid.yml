@@ -7,6 +7,6 @@
     - middleware_automation.infinispan
   roles:
     - redhat_csp_download
-    - name: infinispan
+    - role: infinispan
       infinispan_users: "{{ user_accounts }}"
       supervisor_password: "{{ admin_pass }}"
