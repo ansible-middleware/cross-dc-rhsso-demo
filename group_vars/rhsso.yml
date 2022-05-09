@@ -8,7 +8,7 @@ keycloak_db_pass: keycloak-pass
 keycloak_rhsso_enable: True
 keycloak_configure_firewalld: True
 
-admin_pass: "redhat1!"
+admin_pass: "redhat1!but12long"
 
 infinispan_user: rhsso
 infinispan_pass: rhssopassword
