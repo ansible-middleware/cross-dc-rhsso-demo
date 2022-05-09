@@ -5,6 +5,7 @@ keycloak_frontend_url: "https://{{keycloak_modcluster_url}}/auth"
 keycloak_jdbc_engine: mariadb
 keycloak_db_user: keycloak-user
 keycloak_db_pass: keycloak-pass
+keycloak_configure_firewalld: True
 
 admin_pass: "redhat1!but12long"
 

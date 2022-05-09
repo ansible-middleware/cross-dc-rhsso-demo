@@ -1,7 +1,5 @@
 ---
 - name: Playbook for database Setup
   hosts: database
-  tasks:
-    - name: Include mariadb galera cluster
-      include_role:
-        name: mariadb
+  roles:
+    - mariadb

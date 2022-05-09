@@ -7,15 +7,6 @@
     - middleware_automation.infinispan
   roles:
     - redhat_csp_download
-  tasks:
-    - name: "Install Red Hat Data Grid"
-      include_role:
-        name: infinispan
-      vars:
-        infinispan_users: "{{ user_accounts }}"
-        supervisor_password: "{{ admin_pass }}"
-
-    - name: "Configure firewalld for Red Hat Data Grid"
-      include_role:
-        name: infinispan
-        tasks_from: firewalld.yml
+    - name: infinispan
+      infinispan_users: "{{ user_accounts }}"
+      supervisor_password: "{{ admin_pass }}"
