@@ -31,9 +31,15 @@ platforms:
     network_mode: site2
   - name: site1-datagrid1
     hostname: site1-datagrid1.rhssocrossdc.com
-    image: rockylinux:8
-    privileged: true
+    image: registry.access.redhat.com/ubi8/ubi-init:latest
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: "/usr/sbin/init"
+    pre_build_image: true
+    privileged: true
     groups:
       - datagrid
       - site1
@@ -43,9 +49,15 @@ platforms:
     network_mode: site1
   - name: site1-datagrid2
     hostname: site1-datagrid2.rhssocrossdc.com
-    image: rockylinux:8
+    image: registry.access.redhat.com/ubi8/ubi-init:latest
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: "/usr/sbin/init"
+    pre_build_image: true
     privileged: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - datagrid
       - site1
@@ -55,9 +67,15 @@ platforms:
     network_mode: site1
   - name: site2-datagrid1
     hostname: site2-datagrid1.rhssocrossdc.com
-    image: rockylinux:8
+    image: registry.access.redhat.com/ubi8/ubi-init:latest
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: "/usr/sbin/init"
+    pre_build_image: true
     privileged: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - datagrid
       - site2
@@ -67,9 +85,15 @@ platforms:
     network_mode: site2
   - name: site2-datagrid2
     hostname: site2-datagrid2.rhssocrossdc.com
-    image: rockylinux:8
+    image: registry.access.redhat.com/ubi8/ubi-init:latest
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: "/usr/sbin/init"
+    pre_build_image: true
     privileged: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - datagrid
       - site2
@@ -80,6 +104,12 @@ platforms:
   - name: site1-rhsso1
     hostname: site1-rhsso1.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: "/usr/sbin/init"
     pre_build_image: true
     privileged: true
     groups:
@@ -92,6 +122,12 @@ platforms:
   - name: site2-rhsso1
     hostname: site2-rhsso1.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: "/usr/sbin/init"
     pre_build_image: true
     privileged: true
     groups:
