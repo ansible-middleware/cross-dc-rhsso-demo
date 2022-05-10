@@ -79,9 +79,9 @@ platforms:
     network_mode: site2
   - name: site1-rhsso1
     hostname: site1-rhsso1.rhssocrossdc.com
-    image: rockylinux:8
+    image: registry.access.redhat.com/ubi8/ubi-init:latest
+    pre_build_image: true
     privileged: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - rhsso
       - site1
@@ -91,9 +91,9 @@ platforms:
     network_mode: site1
   - name: site2-rhsso1
     hostname: site2-rhsso1.rhssocrossdc.com
-    image: rockylinux:8
+    image: registry.access.redhat.com/ubi8/ubi-init:latest
+    pre_build_image: true
     privileged: true
-    command: "/lib/systemd/systemd log-level=info unit=sysinit.target"
     groups:
       - rhsso
       - site2

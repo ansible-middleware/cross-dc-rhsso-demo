@@ -4,3 +4,7 @@
   tasks:
     - debug:
         msg: "Prepare"
+    - name: Install sudo
+      ansible.builtin.yum:
+        name:
+          - sudo
