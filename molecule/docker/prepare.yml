@@ -8,3 +8,6 @@
       ansible.builtin.yum:
         name:
           - sudo
+          - java-1.8.0-openjdk-headless
+          - firewalld
+          - ca-certificates
