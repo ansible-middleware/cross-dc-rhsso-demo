@@ -8,6 +8,7 @@
     state: present
     login_unix_socket: "{{ mariadb_login_unix_socket }}"
   with_items: "{{ mariadb_databases }}"
+  run_once: true
   become: true
   register: _db
 

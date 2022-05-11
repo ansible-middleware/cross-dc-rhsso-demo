@@ -23,7 +23,7 @@
     enabled: yes
     state: started
 
-- name: Configure firewall for jdg ports
+- name: Configure firewall for mariadb/wsrep ports
   become: yes
   firewalld:
     port: "{{ item }}"

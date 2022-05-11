@@ -19,7 +19,7 @@ WORKDIR /
 
 RUN dnf makecache \
  && dnf --assumeyes install \
-     /usr/bin/python3 /usr/bin/python3-config dnf systemd sudo bash iproute firewalld ca-certificates \
+     /usr/bin/python3 /usr/bin/python3-config dnf systemd sudo bash iproute ca-certificates \
      procps-ng net-tools bind-utils unzip java-1.8.0-openjdk-headless \
  && dnf clean all
 

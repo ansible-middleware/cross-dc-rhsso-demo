@@ -16,6 +16,8 @@ platforms:
     networks:
       - name: site1
       - name: site2
+        links:
+          - site2-database1
     network_mode: site1
   - name: site2-database1
     hostname: site2-database1.rhssocrossdc.com
@@ -27,123 +29,160 @@ platforms:
       - site2
     networks:
       - name: site1
+        links:
+          - site1-database1
       - name: site2
     network_mode: site2
   - name: site1-datagrid1
     hostname: site1-datagrid1.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      #    tmpfs:
+      #      - /run
+      #      - /tmp
+      #    volumes:
+      #      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: "/usr/sbin/init"
-    pre_build_image: true
+      #pre_build_image: true
     privileged: true
     groups:
       - datagrid
       - site1
     networks:
       - name: site1
+        links:
+          - site1-database1
+          - site1-datagrid2
       - name: site2
+        links:
+          - site2-datagrid1
+          - site2-datagrid2
     network_mode: site1
   - name: site1-datagrid2
     hostname: site1-datagrid2.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      #    tmpfs:
+      #      - /run
+      #      - /tmp
+      #    volumes:
+      #      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: "/usr/sbin/init"
-    pre_build_image: true
+      #pre_build_image: true
     privileged: true
     groups:
       - datagrid
       - site1
     networks:
       - name: site1
+        links:
+          - site1-datagrid1
+          - site1-database1
       - name: site2
+        links:
+          - site2-datagrid1
+          - site2-datagrid2
     network_mode: site1
   - name: site2-datagrid1
     hostname: site2-datagrid1.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      #    tmpfs:
+      #      - /run
+      #      - /tmp
+      #    volumes:
+      #      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: "/usr/sbin/init"
-    pre_build_image: true
+      #pre_build_image: true
     privileged: true
     groups:
       - datagrid
       - site2
     networks:
-      - name: site1
       - name: site2
+        links:
+          - site2-datagrid2
+          - site1-database1
+      - name: site1
+        links:
+          - site1-datagrid1
+          - site1-datagrid2
     network_mode: site2
   - name: site2-datagrid2
     hostname: site2-datagrid2.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      #    tmpfs:
+      #      - /run
+      #      - /tmp
+      #    volumes:
+      #      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: "/usr/sbin/init"
-    pre_build_image: true
+      #pre_build_image: true
     privileged: true
     groups:
       - datagrid
       - site2
     networks:
-      - name: site1
       - name: site2
+        links:
+          - site2-datagrid1
+          - site2-database1
+      - name: site1
+        links:
+          - site1-datagrid1
+          - site1-datagrid2
     network_mode: site2
   - name: site1-rhsso1
     hostname: site1-rhsso1.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      #    tmpfs:
+      #      - /run
+      #      - /tmp
+      #    volumes:
+      #      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: "/usr/sbin/init"
-    pre_build_image: true
+      #pre_build_image: true
     privileged: true
     groups:
       - rhsso
       - site1
     networks:
       - name: site1
+        links:
+          - site1-database1
+          - site1-datagrid1
+          - site1-datagrid2
       - name: site2
+        links:
+          - site2-rhsso1
     network_mode: site1
   - name: site2-rhsso1
     hostname: site2-rhsso1.rhssocrossdc.com
     image: registry.access.redhat.com/ubi8/ubi-init:latest
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      #    tmpfs:
+      #      - /run
+      #      - /tmp
+      #    volumes:
+      #      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: "/usr/sbin/init"
-    pre_build_image: true
+      #pre_build_image: true
     privileged: true
     groups:
       - rhsso
       - site2
     networks:
-      - name: site1
       - name: site2
+        links:
+          - site2-database2
+          - site2-datagrid1
+          - site2-datagrid2
+      - name: site1
+        links:
+          - site1-rhsso1
     network_mode: site2
 provisioner:
   name: ansible
   config_options:
     defaults:
       interpreter_python: auto_silent
-    ssh_connection:
-      pipelining: false
+      remote_tmp: /tmp/.ansible-${USER}/tmp
   playbooks:
     create: create.yml
     prepare: prepare.yml

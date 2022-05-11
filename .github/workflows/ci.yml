@@ -23,14 +23,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python_version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python_version }}
 
       - name: Install yamllint, ansible and molecule
         run: |
           python -m pip install --upgrade pip
-          pip install yamllint 'molecule[docker]~=3.5.2' ansible-core netaddr flake8 ansible-lint voluptuous
+          pip install yamllint 'molecule[docker]~=3.5.2' ansible-core flake8 ansible-lint voluptuous
+          pip install -r requirements.txt
 
       - name: Run molecule test
         run: |
