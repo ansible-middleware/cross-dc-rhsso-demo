@@ -2,12 +2,10 @@
 collections:
   - name: middleware_automation.redhat_csp_download
     version: ">=1.2.1"
-  - name: git@github.com:ansible-middleware/infinispan.git
-    scm: git
-    version: main
-  - name: git@github.com:ansible-middleware/keycloak.git
-    scm: git
-    version: main
+  - name: middleware_automation.infinispan
+    version: ">=1.0.1"
+  - name: middleware_automation.keycloak
+    version: ">=1.0.1"
   - name: community.general
   - name: community.mysql
   - name: ansible.posix
