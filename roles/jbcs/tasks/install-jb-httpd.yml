@@ -119,7 +119,7 @@
 
 - name: Inform decompression was not executed
   ansible.builtin.debug:
-    msg: "{{ jbcs.home }} already exists and version unchanged, skipping decompression"
+    msg: "{{ httpd.home }} already exists and version unchanged, skipping decompression"
   when:
     - not new_version_downloaded.changed and path_to_workdir.stat.exists
 
