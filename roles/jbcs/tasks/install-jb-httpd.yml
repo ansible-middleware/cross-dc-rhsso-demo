@@ -133,7 +133,7 @@
 - name: "Ensures JBCS configuration is correct"
   template:
     src: templates/httpd.conf.j2
-    dest: /opt/jbcs-httpd24-2.4/httpd/conf/httpd.conf
+    dest: "{{ httpd.home }}/httpd/conf/httpd.conf"
   notify:
     - "Restart JBCS"
 
