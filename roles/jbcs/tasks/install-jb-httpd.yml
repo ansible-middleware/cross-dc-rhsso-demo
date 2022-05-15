@@ -54,6 +54,12 @@
   register: local_path
   delegate_to: localhost
 
+- name: Check downloaded archive
+  ansible.builtin.stat:
+    path: "{{ local_path.stat.path }}/{{ jbcs_bundle }}"
+  register: local_archive_path
+  delegate_to: localhost
+
 - name: Download JBoss Core Services from CSP
   redhat_csp_download:
     url: "https://access.redhat.com/jbossnetwork/restricted/softwareDownload.html?softwareId=104386&product=core.service.apachehttp"
@@ -67,6 +73,8 @@
     - archive_path is defined
     - archive_path.stat is defined
     - not archive_path.stat.exists
+    - local_archive_path.stat is defined
+    - not local_archive_path.stat.exists
 
 - name: Check downloaded archive
   ansible.builtin.stat:
@@ -101,8 +109,8 @@
     src: "{{ archive }}"
     dest: "/opt"
     creates: "{{ httpd.home }}"
-    owner: "{{ keycloak_service_user }}"
-    group: "{{ keycloak_service_group }}"
+    owner: "{{ httpd.user.name }}"
+    group: "{{ httpd.group.name }}"
   become: yes
   when:
     - new_version_downloaded.changed or not path_to_workdir.stat.exists
