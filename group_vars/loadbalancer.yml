@@ -5,7 +5,7 @@ httpd:
   mod_cluster:
     port: 6666
     require: "all granted"
-  home: /opt/jbcs-httpd24-2.4/
+  home: /opt/jbcs/jbcs-httpd24-2.4/
   user:
     name: apache
   group:

@@ -15,19 +15,20 @@
     gid: "{{ httpd.group.id | default(omit) }}"
     system: true
 
-- user:
-    name: "{{ httpd.user.name }}"
-    group: "{{ httpd.group.name }}"
-    state: present
-    uid: "{{ httpd.user.id | default(omit) }}"
-    system: true
-
 - file:
-    path: "{{ httpd.home }}"
+    path: /opt/jbcs/
     owner: "{{ httpd.user.name }}"
     group: "{{ httpd.group.name }}"
     recurse: true
   changed_when: false
+
+- user:
+    name: "{{ httpd.user.name }}"
+    group: "{{ httpd.group.name }}"
+    home: /opt/jbcs/
+    state: present
+    uid: "{{ httpd.user.id | default(omit) }}"
+    system: true
 
 - file:
     path: "{{ zip_file_repo }}"
@@ -107,7 +108,7 @@
   ansible.builtin.unarchive:
     remote_src: yes
     src: "{{ archive }}"
-    dest: "/opt"
+    dest: /opt/jbcs/
     creates: "{{ httpd.home }}"
     owner: "{{ httpd.user.name }}"
     group: "{{ httpd.group.name }}"
