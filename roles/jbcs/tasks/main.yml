@@ -1,14 +1,5 @@
 ---
 - include_tasks: prereqs.yml
-- include_tasks: install-jb-httpd.yml
-- include_tasks: ssl.yml
-
-- name: "Ensures mod_cluster configuration is deployed"
-  template:
-    src: templates/mod_cluster.conf.j2
-    dest: /opt/jbcs-httpd24-2.4/httpd/conf.d/mod_cluster.conf
-  notify:
-    - 'expire mod_cluster cache and restart'
 
 - name: configure firewall for JBCS ports
   become: yes
@@ -23,3 +14,13 @@
     - "6666/tcp"
   loop_control:
     loop_var: port
+
+- include_tasks: install-jb-httpd.yml
+- include_tasks: ssl.yml
+
+- name: "Ensures mod_cluster configuration is deployed"
+  template:
+    src: templates/mod_cluster.conf.j2
+    dest: /opt/jbcs-httpd24-2.4/httpd/conf.d/mod_cluster.conf
+  notify:
+    - 'expire mod_cluster cache and restart'

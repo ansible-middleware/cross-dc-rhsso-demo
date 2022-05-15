@@ -13,11 +13,14 @@
     name: "{{ httpd.group.name }}"
     state: present
     gid: "{{ httpd.group.id | default(omit) }}"
+    system: true
 
 - user:
     name: "{{ httpd.user.name }}"
+    group: "{{ httpd.group.name }}"
     state: present
     uid: "{{ httpd.user.id | default(omit) }}"
+    system: true
 
 - file:
     path: "{{ httpd.home }}"
@@ -26,33 +29,91 @@
     recurse: true
   changed_when: false
 
-- set_fact:
-    zip_file_repo: /opt/apps
-
 - file:
     path: "{{ zip_file_repo }}"
+    owner: "{{ httpd.user.name }}"
+    group: "{{ httpd.group.name }}"
+    mode: 0750
     state: directory
+
+## check remote archive
+- name: Set download archive path
+  ansible.builtin.set_fact:
+    archive: "{{ zip_file_repo }}/{{ jbcs_bundle }}"
+
+- name: Check download archive path
+  become: yes
+  ansible.builtin.stat:
+    path: "{{ archive }}"
+  register: archive_path
+
+## download to controller
+- name: Check local download archive path
+  ansible.builtin.stat:
+    path: "{{ lookup('env', 'PWD') }}"
+  register: local_path
+  delegate_to: localhost
 
 - name: Download JBoss Core Services from CSP
   redhat_csp_download:
-    url: "https://access.redhat.com/jbossnetwork/restricted/softwareDownload.html?softwareId=103291&product=core.service.apachehttp"
-    dest: "{{ zip_file_repo }}/jbcs.zip"
+    url: "https://access.redhat.com/jbossnetwork/restricted/softwareDownload.html?softwareId=104386&product=core.service.apachehttp"
+    dest: "{{ zip_file_repo }}/{{ jbcs_bundle }}"
     username: "{{ rhn_username }}"
     password: "{{ rhn_password }}"
+  no_log: "{{ omit_rhn_output | default(true) }}"
+  delegate_to: localhost    
   when:
     - not jbcs_installed is defined
+    - archive_path is defined
+    - archive_path.stat is defined
+    - not archive_path.stat.exists
 
-- stat:
-    path: "{{ httpd.home }}/httpd"
-  register: httpd_home
+- name: Check downloaded archive
+  ansible.builtin.stat:
+    path: "{{ local_path.stat.path }}/{{ jbcs_bundle }}"
+  register: local_archive_path
+  delegate_to: localhost
 
-- name: Unarchive JBoss Core Services
-  unarchive:
-    src: "{{ zip_file_repo }}/jbcs.zip"
-    remote_src: yes
-    dest: /opt
+## copy and unpack
+- name: Copy archive to target nodes
+  ansible.builtin.copy:
+    src: "{{ local_path.stat.path }}/{{ jbcs_bundle }}"
+    dest: "{{ archive }}"
+    owner: "{{ httpd.user.name }}"
+    group: "{{ httpd.group.name }}"
+    mode: 0640
+  register: new_version_downloaded
   when:
-    - not httpd_home.stat.exists
+    - not archive_path.stat.exists
+    - local_archive_path.stat is defined
+    - local_archive_path.stat.exists
+  become: yes
+
+- name: "Check target directory: {{ httpd.home }}"
+  ansible.builtin.stat:
+    path: "{{ httpd.home }}"
+  register: path_to_workdir
+  become: yes
+
+- name: "Extract JBCS archive on target"
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: "{{ archive }}"
+    dest: "/opt"
+    creates: "{{ httpd.home }}"
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+  become: yes
+  when:
+    - new_version_downloaded.changed or not path_to_workdir.stat.exists
+  notify:
+    - Restart JBCS
+
+- name: Inform decompression was not executed
+  ansible.builtin.debug:
+    msg: "{{ jbcs.home }} already exists and version unchanged, skipping decompression"
+  when:
+    - not new_version_downloaded.changed and path_to_workdir.stat.exists
 
 - name: "Post install HTTPD"
   command:

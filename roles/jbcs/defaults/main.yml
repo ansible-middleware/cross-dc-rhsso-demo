@@ -1,2 +1,4 @@
 ---
 httpd_ssl: yes
+jbcs_bundle: jbcs-httpd24-httpd-2.4.37-SP11-RHEL8-x86_64.zip
+zip_file_repo: /opt/apps 
