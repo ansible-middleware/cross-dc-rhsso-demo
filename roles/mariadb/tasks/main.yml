@@ -15,6 +15,7 @@
   yum:
     name: firewalld
     state: present
+  become: yes
 
 - name: Enable and start the firewalld service
   become: yes
