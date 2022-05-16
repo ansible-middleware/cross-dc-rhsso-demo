@@ -10,9 +10,9 @@ Listen {{ ansible_nodename }}:443
 AddType application/x-x509-ca-cert .crt
 AddType application/x-pkcs7-crl    .crl
 
-SSLPassPhraseDialog exec:/opt/jbcs-httpd24-2.4/httpd/sbin/httpd-ssl-pass-dialog
+SSLPassPhraseDialog exec:{{ httpd.home }}/httpd/sbin/httpd-ssl-pass-dialog
 
-SSLSessionCache         shmcb:/opt/jbcs-httpd24-2.4/httpd/run/sslcache(512000)
+SSLSessionCache         shmcb:{{ httpd.home }}/httpd/run/sslcache(512000)
 SSLSessionCacheTimeout  300
 
 Mutex default
@@ -35,8 +35,8 @@ SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5
 #SSLCipherSuite RC4-SHA:AES128-SHA:HIGH:MEDIUM:!aNULL:!MD5
 #SSLHonorCipherOrder on
 
-SSLCertificateFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/certs/localhost.crt
-SSLCertificateKeyFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/private/localhost.key
+SSLCertificateFile {{ httpd.home }}/httpd/conf/openssl/pki/tls/certs/localhost.crt
+SSLCertificateKeyFile {{ httpd.home }}/httpd/conf/openssl/pki/tls/private/localhost.key
 #SSLCertificateChainFile /etc/pki/tls/certs/server-chain.crt
 #SSLCACertificateFile /etc/pki/tls/certs/ca-bundle.crt
 
@@ -44,10 +44,10 @@ SSLCertificateKeyFile /opt/jbcs-httpd24-2.4/httpd/conf/openssl/pki/tls/private/l
 #SSLVerifyDepth  10
 
 #SSLOptions +FakeBasicAuth +ExportCertData +StrictRequire
-<Files ~ "\.(cgi|shtml|phtml|php3?)$">
+<Files ~ \.(cgi|shtml|phtml|php3?)$>
     SSLOptions +StdEnvVars
 </Files>
-<Directory "/opt/jbcs-httpd24-2.4/httpd/www/cgi-bin">
+<Directory {{ httpd.home }}/httpd/www/cgi-bin>
     SSLOptions +StdEnvVars
 </Directory>
 

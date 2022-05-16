@@ -9,9 +9,9 @@
 
 ServerTokens OS
 
-ServerRoot "/opt/jbcs-httpd24-2.4/httpd"
+ServerRoot "{{ httpd.home }}/httpd"
 
-PidFile /opt/jbcs-httpd24-2.4/httpd/run/httpd.pid
+PidFile {{ httpd.home }}/httpd/run/httpd.pid
 
 Timeout 120
 
@@ -36,14 +36,14 @@ ServerName {{ inventory_hostname }}:80
 
 UseCanonicalName Off
 
-DocumentRoot "/opt/jbcs-httpd24-2.4/httpd/www/html"
+DocumentRoot "{{ httpd.home }}/httpd/www/html"
 
 <Directory />
     AllowOverride none
     Require all denied
 </Directory>
 
-<Directory "/opt/jbcs-httpd24-2.4/httpd/www/html">
+<Directory {{ httpd.home }}/httpd/www/html>
     Options Indexes FollowSymLinks
     AllowOverride None
     Require all granted
@@ -53,7 +53,7 @@ DirectoryIndex index.html index.html.var
 
 AccessFileName .htaccess
 
-<Files ~ "^\.ht">
+<Files ~ ^\.ht>
     Require all denied
 </Files>
 
@@ -91,9 +91,9 @@ CustomLog logs/access_log combined
 
 ServerSignature On
 
-Alias /icons/ "/opt/jbcs-httpd24-2.4/httpd/www/icons/"
+Alias /icons/ "{{ httpd.home }}/httpd/www/icons/"
 
-<Directory "/opt/jbcs-httpd24-2.4/httpd/www/icons">
+<Directory {{ httpd.home }}/httpd/www/icons>
     Options Indexes MultiViews
     AllowOverride None
     Require all granted
@@ -104,9 +104,9 @@ Alias /icons/ "/opt/jbcs-httpd24-2.4/httpd/www/icons/"
     DAVLockDB /var/lib/dav/lockdb
 </IfModule>
 
-ScriptAlias /cgi-bin/ "/opt/jbcs-httpd24-2.4/httpd/www/cgi-bin/"
+ScriptAlias /cgi-bin/ "{{ httpd.home }}/httpd/www/cgi-bin/"
 
-<Directory "/opt/jbcs-httpd24-2.4/httpd/www/cgi-bin">
+<Directory {{ httpd.home }}/httpd/www/cgi-bin>
     AllowOverride None
     Options None
     Require all granted
@@ -207,11 +207,11 @@ AddOutputFilter INCLUDES .shtml
 #ErrorDocument 404 "/cgi-bin/missing_handler.pl"
 #ErrorDocument 402 http://www.example.com/subscription_info.html
 
-Alias /error/ "/opt/jbcs-httpd24-2.4/httpd/www/error/"
+Alias /error/ "{{ httpd.home }}/httpd/www/error/"
 
 <IfModule mod_negotiation.c>
 <IfModule mod_include.c>
-    <Directory "/opt/jbcs-httpd24-2.4/httpd/www/error">
+    <Directory {{ httpd.home }}/httpd/www/error>
         AllowOverride None
         Options IncludesNoExec
         AddOutputFilter Includes html

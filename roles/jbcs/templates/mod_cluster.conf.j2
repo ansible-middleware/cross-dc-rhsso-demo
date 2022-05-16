@@ -6,7 +6,7 @@ LoadModule manager_module modules/mod_manager.so
 LoadModule proxy_cluster_module modules/mod_proxy_cluster.so
 LoadModule advertise_module modules/mod_advertise.so
 
-MemManagerFile /opt/jbcs-httpd24-2.4/httpd/cache/mod_cluster
+MemManagerFile {{ httpd.home }}/httpd/cache/mod_cluster
 PersistSlots On
 EnableOptions
 
