@@ -6,6 +6,7 @@ user_accounts:
   - { name: 'ablock', password: 'password', roles: 'observer' }
   - { name: 'rhsso', password: 'rhssopassword', roles: 'application' }
 infinispan_keycloak_caches: True
+jdg_version: "8.2.3"
 jdg_enable: True
 jdg_configure_firewalld: True
 jdg_keycloak_persistence: True
