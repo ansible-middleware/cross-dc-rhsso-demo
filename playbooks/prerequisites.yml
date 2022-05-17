@@ -12,4 +12,5 @@
           - unzip
           - firewalld
           - ca-certificates
+          - python3-lxml
           - "{{ jvm_package }}"
