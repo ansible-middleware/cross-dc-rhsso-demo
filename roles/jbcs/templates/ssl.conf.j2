@@ -5,7 +5,7 @@
 # directives see <URL:http://httpd.apache.org/docs/2.4/mod/mod_ssl.html>
 #
 
-Listen {{ ansible_nodename }}:443
+Listen 443
 
 AddType application/x-x509-ca-cert .crt
 AddType application/x-pkcs7-crl    .crl
@@ -35,10 +35,8 @@ SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5
 #SSLCipherSuite RC4-SHA:AES128-SHA:HIGH:MEDIUM:!aNULL:!MD5
 #SSLHonorCipherOrder on
 
-SSLCertificateFile {{ httpd.home }}/httpd/conf/openssl/pki/tls/certs/localhost.crt
-SSLCertificateKeyFile {{ httpd.home }}/httpd/conf/openssl/pki/tls/private/localhost.key
-#SSLCertificateChainFile /etc/pki/tls/certs/server-chain.crt
-#SSLCACertificateFile /etc/pki/tls/certs/ca-bundle.crt
+SSLCertificateFile {{ httpd.home }}/httpd/conf/openssl/pki/tls/certs/{{ external_domain_name }}.crt
+SSLCertificateKeyFile {{ httpd.home }}/httpd/conf/openssl/pki/tls/private/{{ external_domain_name }}.key
 
 #SSLVerifyClient require
 #SSLVerifyDepth  10

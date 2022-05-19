@@ -3,3 +3,4 @@ infinispan_url: "site1-datagrid1{{ domain_name }}"
 jdg_jgroups_relay_site: site1
 jdg_jdbc_url: "jdbc:mariadb:sequential://site1-database1{{ domain_name }},site1-database2{{ domain_name }},site2-database1{{ domain_name }}:3306/keycloak"
 keycloak_jdbc_url: "jdbc:mariadb:sequential://site1-database1{{ domain_name }},site1-database2{{ domain_name }},site2-database1{{ domain_name }}:3306/keycloak"
+keycloak_modcluster_url: "site1-loadbalancer{{ domain_name }}"

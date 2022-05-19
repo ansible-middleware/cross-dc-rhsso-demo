@@ -13,14 +13,14 @@ EnableOptions
 <VirtualHost *:80>
   ProxyPreserveHost On
   ProxyRequests Off
-  ServerName {{ ansible_nodename }}
-  ServerAlias {{ jbcs_host }}
-  Redirect permanent / https://{{ jbcs_host }}/
+  ServerName {{ external_domain_name }}
+  ServerAlias {{ ansible_nodename }}
+  Redirect permanent / https://{{ external_domain_name }}/
 </VirtualHost>
 
 <IfModule manager_module>
   Listen 6666
-  <VirtualHost {{ jbcs_host }}:{{ httpd.mod_cluster.port }}>
+  <VirtualHost {{ ansible_nodename }}:{{ httpd.mod_cluster.port }}>
     DirectoryIndex disabled
     <Directory />
       Require {{ httpd.mod_cluster.require }}
@@ -28,7 +28,7 @@ EnableOptions
     KeepAliveTimeout 60
     MaxKeepAliveRequests 0
 
-    ServerAdvertise on {{ jbcs_host }}:{{ httpd.mod_cluster.port }}
+    ServerAdvertise on {{ ansible_nodename }}:{{ httpd.mod_cluster.port }}
     AdvertiseFrequency 5
     EnableMCPMReceive
 
