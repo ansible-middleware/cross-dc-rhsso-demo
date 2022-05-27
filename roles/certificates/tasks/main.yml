@@ -30,3 +30,31 @@
   changed_when: ca_cn not in cacerts.stdout
   notify:
     - update_ca_trust
+
+- name: Install public certificate
+  block:
+    - copy:
+        src: "{{ external_domain_name }}.crt"
+        dest: "/etc/pki/tls/certs/{{ external_domain_name }}.crt"
+        owner: root
+        group: root
+        mode: 0444
+      become: true
+      delegate_to: loadbalancer
+  rescue:
+    - debug:
+        msg: "External service name TLS certificate not found"
+
+- name: Install public certificate
+  block:
+    - copy:
+        src: "{{ external_domain_name }}.key"
+        dest: "/etc/pki/tls/certs/{{ external_domain_name }}.key"
+        owner: root
+        group: root
+        mode: 0444
+      become: true
+      delegate_to: loadbalancer
+  rescue:
+    - debug:
+        msg: "External service name TLS private key not found"
