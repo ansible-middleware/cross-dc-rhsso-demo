@@ -136,20 +136,3 @@
     dest: "{{ httpd.home }}/httpd/conf/httpd.conf"
   notify:
     - "Restart JBCS"
-
-- name: "Start HTTPd Service"
-  service:
-    name: jbcs-httpd24-httpd.service
-    state: started
-    enabled: yes
-
-- name: "Wait for all used ports to be open"
-  wait_for:
-    port: "{{ item }}"
-    delay: 0
-  loop:
-    - 80
-    - 443
-    - 6666
-  when:
-    - check_jbcs_port is defined
