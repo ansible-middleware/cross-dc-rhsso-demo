@@ -49,7 +49,7 @@
   block:
     - copy:
         src: "{{ external_domain_name }}.key"
-        dest: "/etc/pki/tls/certs/{{ external_domain_name }}.key"
+        dest: "/etc/pki/tls/private/{{ external_domain_name }}.key"
         owner: root
         group: root
         mode: 0444
