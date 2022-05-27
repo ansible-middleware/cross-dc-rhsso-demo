@@ -40,7 +40,8 @@
         group: root
         mode: 0444
       become: true
-      delegate_to: loadbalancer
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['loadbalancer'] }}"
   rescue:
     - debug:
         msg: "External service name TLS certificate not found"
@@ -54,7 +55,8 @@
         group: root
         mode: 0444
       become: true
-      delegate_to: loadbalancer
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['loadbalancer'] }}"
   rescue:
     - debug:
         msg: "External service name TLS private key not found"
