@@ -3,3 +3,5 @@ install_keystore: False
 install_trust_ca: True
 ca_cn: rhssocrossdc.com
 trust_ca_password: changeit
+tls_certs_lookup_path: ''
+
