@@ -6,6 +6,7 @@ keycloak_db_user: keycloak-user
 keycloak_db_pass: keycloak-pass
 keycloak_rhsso_enable: True
 keycloak_configure_firewalld: True
+keycloak_offline_install: True
 
 admin_pass: "redhat1!but12long"
 

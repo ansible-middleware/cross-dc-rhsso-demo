@@ -10,6 +10,7 @@ jdg_version: "8.2.3"
 jdg_enable: True
 jdg_configure_firewalld: True
 jdg_keycloak_persistence: False
+jdg_offline_install: True
 jdg_jgroups_relay: True
 jdg_jgroups_relay_sites:
   - site1
